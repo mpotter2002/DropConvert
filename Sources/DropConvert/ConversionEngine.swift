@@ -3,6 +3,7 @@ import ImageIO
 import AppKit
 import AVFoundation
 import PDFKit
+import UniformTypeIdentifiers
 
 enum ConversionError: LocalizedError {
     case unsupportedConversion
@@ -43,7 +44,7 @@ struct ConversionEngine {
         else { throw ConversionError.imageReadFailed }
 
         let out = outputURL(for: file, extension: format.fileExtension)
-        let uti: CFString = format == .png ? "public.png" : "public.jpeg"
+        let uti: CFString = (format == .png ? UTType.png : UTType.jpeg).identifier as CFString
 
         guard let dest = CGImageDestinationCreateWithURL(out as CFURL, uti, 1, nil)
         else { throw ConversionError.imageWriteFailed }
@@ -80,7 +81,7 @@ struct ConversionEngine {
         else { throw ConversionError.imageWriteFailed }
 
         let out = outputURL(for: file, extension: format.fileExtension)
-        let uti: CFString = format == .png ? "public.png" : "public.jpeg"
+        let uti: CFString = (format == .png ? UTType.png : UTType.jpeg).identifier as CFString
 
         guard let dest = CGImageDestinationCreateWithURL(out as CFURL, uti, 1, nil)
         else { throw ConversionError.imageWriteFailed }

@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DropConvert — File converter for your menu bar</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #fff;
+      color: #000;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2.5rem;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      text-decoration: none;
+      color: #000;
+    }
+    .nav-logo img { width: 26px; height: 26px; }
+    nav a.gh {
+      font-size: 0.85rem;
+      color: #555;
+      text-decoration: none;
+      border: 1px solid #ccc;
+      padding: 0.35rem 0.85rem;
+      border-radius: 6px;
+      transition: border-color 0.15s;
+    }
+    nav a.gh:hover { border-color: #000; color: #000; }
+
+    /* HERO */
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 5rem 1.5rem 3rem;
+      gap: 1.5rem;
+    }
+    .hero-icon {
+      width: 80px;
+      height: 80px;
+      border: 2px solid #000;
+      border-radius: 20px;
+      padding: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .hero-icon img { width: 100%; height: 100%; }
+
+    h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .subtitle {
+      font-size: 1.15rem;
+      color: #555;
+      max-width: 480px;
+      line-height: 1.6;
+    }
+
+    /* BADGES */
+    .badges {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .badge {
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 0.3rem 0.75rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 999px;
+      color: #444;
+    }
+
+    /* INSTALL OPTIONS */
+    .install-section {
+      width: 100%;
+      max-width: 620px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+    .install-option {
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .install-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1.1rem;
+      background: #fafafa;
+      border-bottom: 1px solid #e5e5e5;
+    }
+    .install-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #888;
+    }
+    .install-tag {
+      font-size: 0.72rem;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-weight: 500;
+    }
+    .tag-recommended { background: #000; color: #fff; }
+    .tag-soon { background: #f0f0f0; color: #888; }
+
+    .install-body {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.9rem 1.1rem;
+    }
+    .install-body code {
+      flex: 1;
+      font-family: "SF Mono", "Fira Code", monospace;
+      font-size: 0.87rem;
+      color: #111;
+      word-break: break-all;
+    }
+    .copy-btn {
+      flex-shrink: 0;
+      background: none;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 0.3rem 0.65rem;
+      font-size: 0.78rem;
+      cursor: pointer;
+      color: #555;
+      transition: all 0.15s;
+    }
+    .copy-btn:hover { border-color: #000; color: #000; }
+    .copy-btn.copied { border-color: #000; color: #000; }
+
+    /* Download button for direct option */
+    .dl-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: #000;
+      color: #fff;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      padding: 0.55rem 1.1rem;
+      border-radius: 8px;
+      transition: opacity 0.15s;
+    }
+    .dl-btn:hover { opacity: 0.8; }
+
+    /* FEATURES */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1px;
+      background: #e5e5e5;
+      border: 1px solid #e5e5e5;
+      border-radius: 14px;
+      overflow: hidden;
+      width: 100%;
+      max-width: 620px;
+      margin-top: 1rem;
+    }
+    .feature {
+      background: #fff;
+      padding: 1.2rem 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+    .feature-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+    .feature-desc {
+      font-size: 0.8rem;
+      color: #777;
+      line-height: 1.4;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.8rem;
+      color: #aaa;
+      border-top: 1px solid #f0f0f0;
+    }
+    footer a { color: #aaa; text-decoration: none; }
+    footer a:hover { color: #000; }
+
+    .requires {
+      font-size: 0.78rem;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a class="nav-logo" href="#">
+      <img src="logo.png" alt="DropConvert logo" />
+      DropConvert
+    </a>
+    <a class="gh" href="https://github.com/mpotter2002/DropConvert" target="_blank">GitHub →</a>
+  </nav>
+
+  <main class="hero">
+    <div class="hero-icon">
+      <img src="logo.png" alt="" />
+    </div>
+
+    <h1>Convert files<br/>from your menu bar.</h1>
+
+    <p class="subtitle">
+      Drop a file. Pick a format. Done.
+      No app to open, no uploading to the cloud — just a tiny icon in your menu bar.
+    </p>
+
+    <div class="badges">
+      <span class="badge">macOS 14+</span>
+      <span class="badge">HEIC → JPG / PNG</span>
+      <span class="badge">MOV → MP4</span>
+      <span class="badge">PDF → JPG / PNG</span>
+      <span class="badge">No cloud</span>
+    </div>
+
+    <!-- INSTALL OPTIONS -->
+    <div class="install-section">
+
+      <!-- Direct download -->
+      <div class="install-option">
+        <div class="install-header">
+          <span class="install-label">Direct download</span>
+          <span class="install-tag tag-recommended">Recommended</span>
+        </div>
+        <div class="install-body">
+          <code>DropConvert.zip — macOS universal binary</code>
+          <a class="dl-btn" href="https://github.com/mpotter2002/DropConvert/releases/latest/download/DropConvert.zip">
+            Download
+          </a>
+        </div>
+      </div>
+
+      <!-- curl -->
+      <div class="install-option">
+        <div class="install-header">
+          <span class="install-label">curl installer</span>
+        </div>
+        <div class="install-body">
+          <code id="curl-cmd">curl -fsSL https://dropconvert.vercel.app/install.sh | bash</code>
+          <button class="copy-btn" onclick="copy('curl-cmd', this)">Copy</button>
+        </div>
+      </div>
+
+      <!-- Homebrew -->
+      <div class="install-option">
+        <div class="install-header">
+          <span class="install-label">Homebrew</span>
+          <span class="install-tag tag-soon">Coming soon</span>
+        </div>
+        <div class="install-body">
+          <code id="brew-cmd">brew install --cask dropconvert</code>
+          <button class="copy-btn" onclick="copy('brew-cmd', this)" disabled style="opacity:0.4;cursor:default">Copy</button>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="requires">Requires macOS Sonoma 14.0 or later &nbsp;·&nbsp; Apple Silicon &amp; Intel</p>
+
+    <!-- FEATURES -->
+    <div class="features">
+      <div class="feature">
+        <div class="feature-title">Lives in the menu bar</div>
+        <div class="feature-desc">No dock icon. Always one click away, never in the way.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">Drag &amp; drop</div>
+        <div class="feature-desc">Drag a file toward the icon and the panel springs open.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">Runs locally</div>
+        <div class="feature-desc">No internet required. Your files never leave your Mac.</div>
+      </div>
+      <div class="feature">
+        <div class="feature-title">Free &amp; open source</div>
+        <div class="feature-desc">MIT licensed. Fork it, hack it, make it yours.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>Built by <a href="https://github.com/mpotter2002" target="_blank">mpotter2002</a> &nbsp;·&nbsp;
+    <a href="https://github.com/mpotter2002/DropConvert" target="_blank">View on GitHub</a></p>
+  </footer>
+
+  <script>
+    function copy(id, btn) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
+      });
+    }
+  </script>
+
+</body>
+</html>

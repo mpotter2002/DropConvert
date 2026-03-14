@@ -7,7 +7,8 @@ let package = Package(
     targets: [
         .executableTarget(
             name: "DropConvert",
-            path: "Sources/DropConvert"
+            path: "Sources/DropConvert",
+            resources: [.process("Resources")]
         )
     ]
 )

@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Build arm64
+        run: |
+          chmod +x scripts/build-release.sh
+          bash scripts/build-release.sh ${{ steps.version.outputs.VERSION }}
+          mv DropConvert-${{ steps.version.outputs.VERSION }}-arm64.zip DropConvert-arm64.zip
+
+      - name: Build x86_64
+        run: |
+          bash scripts/build-release.sh ${{ steps.version.outputs.VERSION }}
+          mv DropConvert-${{ steps.version.outputs.VERSION }}-x86_64.zip DropConvert-x86_64.zip
+
+      - name: Create universal zip
+        run: |
+          # Build both arches and combine with lipo
+          swift build -c release --arch arm64
+          swift build -c release --arch x86_64
+          mkdir -p DropConvert.app/Contents/MacOS
+          mkdir -p DropConvert.app/Contents/Resources
+          lipo -create \
+            .build/arm64-apple-macosx/release/DropConvert \
+            .build/x86_64-apple-macosx/release/DropConvert \
+            -output DropConvert.app/Contents/MacOS/DropConvert
+          sed "s/1.0.0/${{ steps.version.outputs.VERSION }}/g" \
+            Info.plist > DropConvert.app/Contents/Info.plist
+          cp -r .build/arm64-apple-macosx/release/DropConvert.bundle/* \
+            DropConvert.app/Contents/Resources/ 2>/dev/null || true
+          zip -r DropConvert.zip DropConvert.app
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: DropConvert ${{ github.ref_name }}
+          body: |
+            ## DropConvert ${{ github.ref_name }}
+
+            ### Install
+            **Direct download:** grab `DropConvert.zip` below (universal binary).
+
+            **curl:**
+            ```bash
+            curl -fsSL https://dropconvert.vercel.app/install.sh | bash
+            ```
+
+            ### What's new
+            See commit history for changes.
+
+            ### Requirements
+            macOS 14 (Sonoma) or later
+          files: |
+            DropConvert.zip
+            DropConvert-arm64.zip
+            DropConvert-x86_64.zip
