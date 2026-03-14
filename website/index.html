@@ -3,338 +3,1118 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DropConvert — File converter for your menu bar</title>
+  <title>DropConvert — Convert files from your menu bar</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: #fff;
-      color: #000;
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
+    :root {
+      --black: #0a0a0a;
+      --gray: #666;
+      --light-gray: #999;
+      --border: #e5e5e5;
+      --bg: #ffffff;
     }
 
-    /* NAV */
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--black);
+      overflow-x: hidden;
+    }
+
+    /* ─── NAV ─── */
     nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255, 255, 255, 0.82);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 1.25rem 2.5rem;
-      border-bottom: 1px solid #e5e5e5;
+      padding: 1.35rem 2.5rem;
+      transition: box-shadow 0.2s ease;
+    }
+    nav.scrolled {
+      box-shadow: 0 1px 0 var(--border);
     }
     .nav-logo {
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.55rem;
+      text-decoration: none;
+      color: var(--black);
+    }
+    .nav-logo img {
+      width: 32px;
+      height: 32px;
+      border-radius: 7px;
+    }
+    .nav-logo-name {
       font-weight: 700;
       font-size: 1.05rem;
-      text-decoration: none;
-      color: #000;
+      letter-spacing: -0.01em;
     }
-    .nav-logo img { width: 26px; height: 26px; }
-    nav a.gh {
-      font-size: 0.85rem;
-      color: #555;
+    .nav-version {
+      font-size: 0.68rem;
+      font-weight: 500;
+      color: #888;
+      background: #f0f0f0;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      margin-left: 1px;
+    }
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+    .btn-dl {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--black);
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
       text-decoration: none;
-      border: 1px solid #ccc;
-      padding: 0.35rem 0.85rem;
-      border-radius: 6px;
+      padding: 0.65rem 1.3rem;
+      border-radius: 999px;
+      transition: opacity 0.15s;
+      letter-spacing: -0.01em;
+    }
+    .btn-dl:hover { opacity: 0.78; }
+    .btn-gh {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      color: var(--black);
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      padding: 0.65rem 1.3rem;
+      border-radius: 999px;
+      border: 1.5px solid #d8d8d8;
       transition: border-color 0.15s;
+      letter-spacing: -0.01em;
     }
-    nav a.gh:hover { border-color: #000; color: #000; }
+    .btn-gh:hover { border-color: var(--black); }
 
-    /* HERO */
+    /* ─── HERO ─── */
     .hero {
-      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       text-align: center;
-      padding: 5rem 1.5rem 3rem;
-      gap: 1.5rem;
+      padding: 5.5rem 1.5rem 1rem;
+      gap: 1.6rem;
     }
-    .hero-icon {
-      width: 80px;
-      height: 80px;
-      border: 2px solid #000;
-      border-radius: 20px;
-      padding: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .hero-icon img {
+      width: 120px;
+      height: 120px;
+      border-radius: 28px;
+      display: block;
     }
-    .hero-icon img { width: 100%; height: 100%; }
-
     h1 {
-      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-size: clamp(2.8rem, 6vw, 4.6rem);
       font-weight: 800;
-      letter-spacing: -0.03em;
-      line-height: 1.1;
+      letter-spacing: -0.035em;
+      line-height: 1.07;
     }
     .subtitle {
-      font-size: 1.15rem;
-      color: #555;
-      max-width: 480px;
-      line-height: 1.6;
+      font-size: 1.12rem;
+      color: var(--gray);
+      max-width: 490px;
+      line-height: 1.68;
     }
-
-    /* BADGES */
     .badges {
       display: flex;
-      gap: 0.5rem;
+      gap: 0.45rem;
       flex-wrap: wrap;
       justify-content: center;
     }
     .badge {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 500;
-      padding: 0.3rem 0.75rem;
-      border: 1px solid #e0e0e0;
+      padding: 0.3rem 0.8rem;
+      border: 1px solid var(--border);
       border-radius: 999px;
-      color: #444;
+      color: #555;
     }
 
-    /* INSTALL OPTIONS */
-    .install-section {
+    /* ─── MAC DEMO ─── */
+    .demo-wrap {
       width: 100%;
-      max-width: 620px;
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
+      max-width: 1440px;
+      margin: 2.5rem auto 0;
+      padding: 0 2rem;
     }
-    .install-option {
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
+    .mac-window {
+      width: 100%;
+      border-radius: 13px;
+      overflow: hidden;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.18), 0 8px 24px rgba(0,0,0,0.1);
+      background: radial-gradient(ellipse at 20% 60%, #e8a0d0 0%, #9b96f0 35%, #7dd6e8 70%, #5aabf0 100%);
+      position: relative;
+    }
+
+    /* Menu bar */
+    .mac-bar {
+      height: 30px;
+      background: rgba(255,255,255,0.38);
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      gap: 0;
+      user-select: none;
+      border-bottom: 1px solid rgba(255,255,255,0.25);
+    }
+    .mac-dots {
+      display: flex;
+      gap: 6px;
+      margin-right: 18px;
+    }
+    .mac-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .mac-dot.r { background: #ff5f57; }
+    .mac-dot.y { background: #febc2e; }
+    .mac-dot.g { background: #28c840; }
+    .mac-menus {
+      display: flex;
+      gap: 15px;
+      flex: 1;
+    }
+    .mac-m {
+      font-size: 11.5px;
+      color: rgba(0,0,0,0.7);
+      font-weight: 400;
+    }
+    .mac-m.bold { font-weight: 700; color: rgba(0,0,0,0.85); }
+    .mac-status {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mac-time {
+      font-size: 11px;
+      color: rgba(0,0,0,0.65);
+      font-weight: 500;
+      letter-spacing: -0.01em;
+    }
+    .mac-status-icon {
+      width: 14px;
+      height: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.6;
+    }
+    .mac-status-icon svg {
+      width: 100%;
+      height: 100%;
+      stroke: rgba(0,0,0,0.8);
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .mac-app-icon {
+      width: 16px;
+      height: 16px;
+      position: relative;
+      transition: filter 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mac-app-icon img { width: 100%; height: 100%; display: block; filter: brightness(0) opacity(0.65); }
+    .mac-app-icon.lit img { filter: brightness(0) opacity(1) drop-shadow(0 0 3px rgba(0,80,255,0.6)); }
+
+    /* Desktop area */
+    .mac-desktop {
+      height: clamp(480px, 42vw, 680px);
+      background: radial-gradient(ellipse at 20% 60%, #e8a0d0 0%, #9b96f0 35%, #7dd6e8 70%, #5aabf0 100%);
+      position: relative;
       overflow: hidden;
     }
-    .install-header {
+
+    /* Animated file */
+    .demo-file {
+      position: absolute;
+      left: 50%;
+      bottom: 22%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      will-change: transform, opacity;
+    }
+    .file-card {
+      width: 44px;
+      height: 54px;
+      background: #fff;
+      border-radius: 5px 12px 5px 5px;
+      position: relative;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding-bottom: 6px;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.35);
+    }
+    .file-card::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 13px; height: 13px;
+      background: #e8e8e8;
+      border-bottom-left-radius: 5px;
+      border-left: 1px solid #d0d0d0;
+      border-bottom: 1px solid #d0d0d0;
+    }
+    .file-ext {
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .file-name {
+      font-size: 10.5px;
+      color: rgba(255,255,255,0.88);
+      font-weight: 500;
+    }
+
+    /* Cursor */
+    .demo-cursor {
+      position: absolute;
+      width: 18px;
+      height: 22px;
+      opacity: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+    .demo-cursor svg { width: 100%; height: 100%; }
+
+    /* Popup — matches real app UI */
+    .demo-popup {
+      position: absolute;
+      top: 34px;
+      right: 18px;
+      background: #ffffff;
+      border: 1px solid rgba(0,0,0,0.09);
+      border-radius: 14px;
+      padding: 12px;
+      width: 220px;
+      opacity: 0;
+      transform: translateY(-6px) scale(0.96);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.08);
+      will-change: transform, opacity;
+    }
+    .popup-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.85rem 1.1rem;
-      background: #fafafa;
-      border-bottom: 1px solid #e5e5e5;
+      margin-bottom: 10px;
     }
-    .install-label {
-      font-size: 0.78rem;
+    .popup-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: rgba(0,0,0,0.85);
+      letter-spacing: -0.01em;
+    }
+    .popup-close {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: rgba(0,0,0,0.45);
+      line-height: 1;
+    }
+    .popup-dropzone {
+      border: 1.5px dashed rgba(0,0,0,0.2);
+      border-radius: 10px;
+      padding: 20px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .popup-dropzone.active {
+      border-color: #007aff;
+      background: rgba(0,122,255,0.06);
+    }
+    .popup-drop-icon {
+      width: 32px;
+      height: 32px;
+      border: 2px solid rgba(0,0,0,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .popup-dropzone.active .popup-drop-icon {
+      border-color: #007aff;
+      background: rgba(0,122,255,0.1);
+    }
+    .popup-drop-icon svg {
+      width: 16px; height: 16px;
+      stroke: rgba(0,0,0,0.5);
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s;
+    }
+    .popup-dropzone.active .popup-drop-icon svg { stroke: #007aff; }
+    .popup-drop-text {
+      font-size: 12px;
       font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: #888;
+      color: rgba(0,0,0,0.75);
+      text-align: center;
+      line-height: 1.3;
     }
-    .install-tag {
-      font-size: 0.72rem;
-      padding: 0.2rem 0.55rem;
-      border-radius: 4px;
+    .popup-drop-sub {
+      font-size: 10px;
+      color: rgba(0,0,0,0.35);
+      letter-spacing: 0.04em;
       font-weight: 500;
     }
-    .tag-recommended { background: #000; color: #fff; }
-    .tag-soon { background: #f0f0f0; color: #888; }
 
+    /* Options panel (after file dropped) */
+    .popup-options {
+      display: none;
+      flex-direction: column;
+      gap: 9px;
+    }
+    .popup-options.visible { display: flex; }
+    .popup-file-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(0,0,0,0.04);
+      border-radius: 8px;
+      padding: 7px 8px;
+    }
+    .popup-file-thumb {
+      width: 34px; height: 34px;
+      background: #4a90e2;
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .popup-file-thumb svg {
+      width: 18px; height: 18px;
+      stroke: #fff; stroke-width: 1.8; fill: none;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .popup-file-info { flex: 1; min-width: 0; }
+    .popup-file-name {
+      font-size: 11px; font-weight: 600;
+      color: rgba(0,0,0,0.85);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .popup-file-type { font-size: 10px; color: rgba(0,0,0,0.4); margin-top: 1px; }
+    .popup-file-x {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: rgba(0,0,0,0.08);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: rgba(0,0,0,0.4); flex-shrink: 0;
+    }
+    .popup-convert-label {
+      font-size: 11px; font-weight: 600;
+      color: rgba(0,0,0,0.45);
+    }
+    .popup-formats { display: flex; gap: 6px; }
+    .fmt-btn {
+      flex: 1; padding: 6px 0;
+      border-radius: 8px;
+      border: 1.5px solid rgba(0,0,0,0.12);
+      background: rgba(0,0,0,0.04);
+      font-size: 11.5px; font-weight: 700;
+      color: rgba(0,0,0,0.65); cursor: pointer;
+      letter-spacing: 0.02em; font-family: inherit;
+      transition: all 0.15s;
+    }
+    .fmt-btn.active { background: #007aff; border-color: #007aff; color: #fff; }
+    .popup-convert-btn {
+      width: 100%; padding: 9px 0;
+      background: #007aff; border: none;
+      border-radius: 9px; color: #fff;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      transition: opacity 0.15s; letter-spacing: -0.01em;
+    }
+    .popup-convert-btn.pressing { opacity: 0.65; transform: scale(0.98); }
+
+    /* Success */
+    .demo-success {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      opacity: 0;
+      will-change: opacity;
+    }
+    .success-ring {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      background: #28c840;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #fff;
+      box-shadow: 0 0 0 8px rgba(40,200,64,0.2);
+    }
+    .success-label {
+      font-size: 15px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.92);
+      letter-spacing: -0.01em;
+    }
+    .success-sub {
+      font-size: 11.5px;
+      color: rgba(255,255,255,0.4);
+    }
+
+    /* ─── FEATURES ─── */
+    .features-section {
+      max-width: 1060px;
+      margin: 5.5rem auto 0;
+      padding: 0 2rem;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 3rem 2rem;
+    }
+    .feature-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.8rem;
+    }
+    .feat-icon {
+      width: 68px;
+      height: 68px;
+      border: 1.5px solid var(--border);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .feat-icon svg {
+      width: 30px;
+      height: 30px;
+      stroke: var(--black);
+      stroke-width: 1.8;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .feat-name {
+      font-size: 0.925rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .feat-desc {
+      font-size: 0.82rem;
+      color: var(--gray);
+      line-height: 1.55;
+    }
+
+    /* ─── DOWNLOAD ─── */
+    .download-section {
+      max-width: 1060px;
+      margin: 5.5rem auto 0;
+      padding: 0 2rem;
+    }
+    .section-eyebrow {
+      font-size: 0.73rem;
+      font-weight: 600;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--light-gray);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    .install-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+    }
+    .install-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .install-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.4rem;
+      background: #f0f0f0;
+      border-bottom: 1px solid var(--border);
+    }
+    .install-lbl {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #555;
+    }
+    .tag {
+      font-size: 0.74rem;
+      font-weight: 600;
+      padding: 0.22rem 0.6rem;
+      border-radius: 4px;
+    }
+    .tag-rec { background: #0a0a0a; color: #fff; }
+    .tag-soon { background: #f0f0f0; color: #999; }
     .install-body {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.9rem 1.1rem;
+      padding: 1.1rem 1.4rem;
     }
     .install-body code {
       flex: 1;
-      font-family: "SF Mono", "Fira Code", monospace;
-      font-size: 0.87rem;
-      color: #111;
+      font-family: "SF Mono", "Fira Code", "Fira Mono", monospace;
+      font-size: 0.95rem;
+      color: #1a1a1a;
       word-break: break-all;
     }
     .copy-btn {
       flex-shrink: 0;
       background: none;
-      border: 1px solid #e0e0e0;
+      border: 1px solid var(--border);
       border-radius: 6px;
-      padding: 0.3rem 0.65rem;
-      font-size: 0.78rem;
+      padding: 0.38rem 0.85rem;
+      font-size: 0.82rem;
       cursor: pointer;
-      color: #555;
-      transition: all 0.15s;
+      color: #666;
+      font-family: inherit;
+      transition: border-color 0.15s, color 0.15s;
     }
-    .copy-btn:hover { border-color: #000; color: #000; }
-    .copy-btn.copied { border-color: #000; color: #000; }
-
-    /* Download button for direct option */
-    .dl-btn {
+    .copy-btn:hover, .copy-btn.copied {
+      border-color: var(--black);
+      color: var(--black);
+    }
+    .download-btn {
+      flex-shrink: 0;
       display: inline-flex;
       align-items: center;
-      gap: 0.4rem;
-      background: #000;
+      background: var(--black);
       color: #fff;
       text-decoration: none;
-      font-size: 0.88rem;
+      font-size: 0.92rem;
       font-weight: 600;
-      padding: 0.55rem 1.1rem;
+      padding: 0.6rem 1.25rem;
       border-radius: 8px;
       transition: opacity 0.15s;
+      letter-spacing: -0.01em;
     }
-    .dl-btn:hover { opacity: 0.8; }
-
-    /* FEATURES */
-    .features {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 1px;
-      background: #e5e5e5;
-      border: 1px solid #e5e5e5;
-      border-radius: 14px;
-      overflow: hidden;
-      width: 100%;
-      max-width: 620px;
-      margin-top: 1rem;
-    }
-    .feature {
-      background: #fff;
-      padding: 1.2rem 1.1rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-    .feature-title {
-      font-size: 0.9rem;
-      font-weight: 600;
-    }
-    .feature-desc {
-      font-size: 0.8rem;
-      color: #777;
-      line-height: 1.4;
+    .download-btn:hover { opacity: 0.8; }
+    .requires {
+      text-align: center;
+      font-size: 0.76rem;
+      color: #bbb;
+      margin-top: 1.25rem;
     }
 
-    /* FOOTER */
+    /* ─── FOOTER ─── */
     footer {
       text-align: center;
-      padding: 2rem;
-      font-size: 0.8rem;
-      color: #aaa;
-      border-top: 1px solid #f0f0f0;
+      padding: 2.5rem 2rem;
+      font-size: 0.79rem;
+      color: #bbb;
+      border-top: 1px solid var(--border);
+      margin-top: 5.5rem;
     }
-    footer a { color: #aaa; text-decoration: none; }
-    footer a:hover { color: #000; }
+    footer a { color: #bbb; text-decoration: none; transition: color 0.15s; }
+    footer a:hover { color: var(--black); }
 
-    .requires {
-      font-size: 0.78rem;
-      color: #aaa;
+    /* ─── SCROLL FADE ─── */
+    .fade-up {
+      opacity: 0;
+      transform: translateY(22px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+    .fade-up.in { opacity: 1; transform: translateY(0); }
+    .delay-1 { transition-delay: 0.08s; }
+    .delay-2 { transition-delay: 0.16s; }
+    .delay-3 { transition-delay: 0.24s; }
+    .delay-4 { transition-delay: 0.05s; }
+    .delay-5 { transition-delay: 0.1s; }
+    .delay-6 { transition-delay: 0.15s; }
+
+    /* ─── RESPONSIVE ─── */
+    /* ── Mobile ── */
+    @media (max-width: 480px) {
+      nav { padding: 0.85rem 1.1rem; }
+      .nav-version { display: none; }
+      .btn-gh { display: none; }
+      .btn-dl { font-size: 0.8rem; padding: 0.52rem 1rem; }
+      .nav-logo img { width: 26px; height: 26px; }
+      .nav-logo-name { font-size: 0.92rem; }
+
+      .hero { padding: 3.5rem 1.25rem 0.75rem; gap: 1.2rem; }
+      .hero-icon img { width: 80px; height: 80px; border-radius: 18px; }
+      h1 { font-size: clamp(2rem, 10vw, 2.8rem); }
+      .subtitle { font-size: 0.95rem; }
+      .badge { font-size: 0.7rem; padding: 0.25rem 0.65rem; }
+
+      .demo-wrap { padding: 0 1rem; margin-top: 1.75rem; }
+      .mac-bar { padding: 0 10px; }
+      .mac-menus { display: none; }
+      .mac-desktop { height: 220px; }
+      .demo-popup { right: 10px; width: 148px; padding: 9px; }
+      .popup-title { font-size: 11px; }
+      .popup-drop-text { font-size: 10px; }
+      .popup-drop-sub { font-size: 8.5px; }
+      .popup-options { gap: 7px; }
+      .popup-file-name { font-size: 9.5px; }
+      .popup-convert-label { font-size: 9.5px; }
+      .fmt-btn { font-size: 10px; padding: 5px 0; }
+      .popup-convert-btn { font-size: 11px; padding: 7px 0; }
+
+      .features-section { padding: 0 1.25rem; margin-top: 3.5rem; }
+      .features-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem 1.25rem; }
+      .feat-icon { width: 54px; height: 54px; border-radius: 13px; }
+      .feat-icon svg { width: 24px; height: 24px; }
+      .feat-name { font-size: 0.82rem; }
+      .feat-desc { font-size: 0.78rem; }
+
+      .download-section { padding: 0 1.25rem; margin-top: 3.5rem; }
+      .install-head { padding: 0.8rem 1rem; }
+      .install-lbl { font-size: 0.72rem; }
+      .install-body { padding: 0.85rem 1rem; }
+      .install-body code { font-size: 0.78rem; }
+      .copy-btn { padding: 0.3rem 0.65rem; font-size: 0.72rem; }
+      .download-btn { font-size: 0.8rem; padding: 0.5rem 1rem; }
+    }
+
+    @media (min-width: 481px) and (max-width: 680px) {
+      nav { padding: 0.9rem 1.25rem; }
+      .nav-version { display: none; }
+      .btn-gh { display: none; }
+      h1 { font-size: clamp(2.2rem, 8vw, 3rem); }
+      .features-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem 1.5rem; }
+      .mac-desktop { height: 240px; }
+      .demo-popup { right: 14px; width: 152px; }
+      .demo-wrap, .features-section, .download-section { padding: 0 1.25rem; }
+    }
+
+    /* ── Wide screens (Arc sidebar etc) ── */
+    @media (min-width: 1100px) {
+      .demo-wrap,
+      .features-section,
+      .download-section { padding: 0 4rem; }
+    }
+    /* ── Very wide / Chrome full screen ── */
+    @media (min-width: 1400px) {
+      .demo-wrap,
+      .features-section,
+      .download-section { padding: 0 3rem; }
     }
   </style>
 </head>
 <body>
 
-  <nav>
+  <!-- NAV -->
+  <nav id="nav">
     <a class="nav-logo" href="#">
-      <img src="logo.png" alt="DropConvert logo" />
-      DropConvert
+      <img src="logo.png" alt="DropConvert" />
+      <span class="nav-logo-name">DropConvert</span>
+      <span class="nav-version">v1.0.0</span>
     </a>
-    <a class="gh" href="https://github.com/mpotter2002/DropConvert" target="_blank">GitHub →</a>
+    <div class="nav-right">
+      <a class="btn-dl" href="https://github.com/mpotter2002/DropConvert/releases/latest/download/DropConvert.zip">
+        ↓ Download for Mac
+      </a>
+      <a class="btn-gh" href="https://github.com/mpotter2002/DropConvert" target="_blank">
+        GitHub →
+      </a>
+    </div>
   </nav>
 
-  <main class="hero">
-    <div class="hero-icon">
-      <img src="logo.png" alt="" />
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-icon fade-up">
+      <img src="logo.png" alt="DropConvert icon" />
     </div>
 
-    <h1>Convert files<br/>from your menu bar.</h1>
+    <h1 class="fade-up delay-1">Convert files<br>from your menu bar.</h1>
 
-    <p class="subtitle">
+    <p class="subtitle fade-up delay-2">
       Drop a file. Pick a format. Done.
-      No app to open, no uploading to the cloud — just a tiny icon in your menu bar.
+      No app to open, no uploading to the cloud —
+      just a tiny icon in your menu bar.
     </p>
 
-    <div class="badges">
+    <div class="badges fade-up delay-3">
       <span class="badge">macOS 14+</span>
       <span class="badge">HEIC → JPG / PNG</span>
       <span class="badge">MOV → MP4</span>
       <span class="badge">PDF → JPG / PNG</span>
       <span class="badge">No cloud</span>
     </div>
+  </section>
 
-    <!-- INSTALL OPTIONS -->
-    <div class="install-section">
+  <!-- MAC DEMO -->
+  <div class="demo-wrap fade-up">
+    <div class="mac-window">
 
-      <!-- Direct download -->
-      <div class="install-option">
-        <div class="install-header">
-          <span class="install-label">Direct download</span>
-          <span class="install-tag tag-recommended">Recommended</span>
+      <!-- macOS menu bar -->
+      <div class="mac-bar">
+        <div class="mac-dots">
+          <div class="mac-dot r"></div>
+          <div class="mac-dot y"></div>
+          <div class="mac-dot g"></div>
+        </div>
+        <div class="mac-menus">
+          <span class="mac-m bold">Finder</span>
+          <span class="mac-m">File</span>
+          <span class="mac-m">Edit</span>
+          <span class="mac-m">View</span>
+          <span class="mac-m">Go</span>
+          <span class="mac-m">Window</span>
+        </div>
+        <div class="mac-status">
+          <div class="mac-app-icon" id="appIcon">
+            <img src="menubar-icon.png" alt="" />
+          </div>
+          <!-- Wifi -->
+          <div class="mac-status-icon">
+            <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0114.08 0"/><path d="M1.42 9a16 16 0 0121.16 0"/><path d="M8.53 16.11a6 6 0 016.95 0"/><circle cx="12" cy="20" r="1" fill="rgba(0,0,0,0.8)" stroke="none"/></svg>
+          </div>
+          <!-- Battery -->
+          <div class="mac-status-icon">
+            <svg viewBox="0 0 24 24"><rect x="1" y="7" width="18" height="10" rx="2"/><path d="M23 11v2"/><rect x="3" y="9" width="11" height="6" rx="1" fill="rgba(0,0,0,0.5)" stroke="none"/></svg>
+          </div>
+          <span class="mac-time" id="macTime">9:41 AM</span>
+        </div>
+      </div>
+
+      <!-- Desktop -->
+      <div class="mac-desktop" id="macDesktop">
+
+        <!-- File being dragged -->
+        <div class="demo-file" id="demoFile">
+          <div class="file-card">
+            <span class="file-ext" id="fileExt" style="color:#e05252">HEIC</span>
+          </div>
+          <span class="file-name" id="fileName">photo.heic</span>
+        </div>
+
+        <!-- DropConvert popup — real app UI -->
+        <div class="demo-popup" id="demoPopup">
+          <div class="popup-header">
+            <span class="popup-title">DropConvert</span>
+            <div class="popup-close">✕</div>
+          </div>
+          <!-- Drop zone state -->
+          <div class="popup-dropzone" id="dropzone">
+            <div class="popup-drop-icon">
+              <svg viewBox="0 0 24 24"><path d="M12 5v10M8 11l4 4 4-4"/></svg>
+            </div>
+            <div class="popup-drop-text">Drop a file to convert</div>
+            <div class="popup-drop-sub">HEIC · MOV · PDF</div>
+          </div>
+          <!-- Options state (shown after file dropped) -->
+          <div class="popup-options" id="popupOptions">
+            <div class="popup-file-row">
+              <div class="popup-file-thumb">
+                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              </div>
+              <div class="popup-file-info">
+                <div class="popup-file-name" id="optFileName">photo.heic</div>
+                <div class="popup-file-type" id="optFileType">HEIC Image</div>
+              </div>
+              <div class="popup-file-x">✕</div>
+            </div>
+            <div class="popup-convert-label">Convert to</div>
+            <div class="popup-formats">
+              <button class="fmt-btn active" id="fmtBtn1">JPG</button>
+              <button class="fmt-btn" id="fmtBtn2">PNG</button>
+            </div>
+            <button class="popup-convert-btn" id="convertBtn">Convert</button>
+          </div>
+        </div>
+
+        <!-- Success overlay -->
+        <div class="demo-success" id="demoSuccess">
+          <div class="success-ring">✓</div>
+          <div class="success-label" id="successLabel">Converted to JPG!</div>
+          <div class="success-sub" id="successSub">photo.jpg saved to Desktop</div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="features-section">
+    <div class="features-grid">
+
+      <div class="feature-item fade-up">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="3.5" rx="1"/><rect x="2" y="6.5" width="20" height="14.5" rx="1"/></svg>
+        </div>
+        <div class="feat-name">Lives in the menu bar</div>
+        <div class="feat-desc">No dock icon, no clutter. Always one click away, never in the way.</div>
+      </div>
+
+      <div class="feature-item fade-up delay-4">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M12 5v10M8 11l4 4 4-4"/><path d="M5 19h14"/></svg>
+        </div>
+        <div class="feat-name">Drag &amp; drop</div>
+        <div class="feat-desc">Drag a file to the icon and the conversion panel springs open instantly.</div>
+      </div>
+
+      <div class="feature-item fade-up delay-5">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        </div>
+        <div class="feat-name">Runs locally</div>
+        <div class="feat-desc">No internet required. Your files never leave your Mac.</div>
+      </div>
+
+      <div class="feature-item fade-up delay-6">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/><path d="M2 12h2M20 12h2M12 2v2M12 20v2"/></svg>
+        </div>
+        <div class="feat-name">Free &amp; open source</div>
+        <div class="feat-desc">MIT licensed. Fork it, hack it, make it your own.</div>
+      </div>
+
+      <div class="feature-item fade-up delay-4">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
+        </div>
+        <div class="feat-name">Multiple formats</div>
+        <div class="feat-desc">HEIC, MOV, PDF and more — with new formats added regularly.</div>
+      </div>
+
+      <div class="feature-item fade-up delay-5">
+        <div class="feat-icon">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="17" y1="3" x2="21" y2="7"/><line x1="21" y1="3" x2="17" y2="7"/></svg>
+        </div>
+        <div class="feat-name">No account needed</div>
+        <div class="feat-desc">Download and go. No sign-up, no subscription, no friction.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section class="download-section">
+    <p class="section-eyebrow fade-up">Get DropConvert</p>
+    <div class="install-stack">
+
+      <div class="install-card fade-up delay-4">
+        <div class="install-head">
+          <span class="install-lbl">Direct Download</span>
+          <span class="tag tag-rec">Recommended</span>
         </div>
         <div class="install-body">
           <code>DropConvert.zip — macOS universal binary</code>
-          <a class="dl-btn" href="https://github.com/mpotter2002/DropConvert/releases/latest/download/DropConvert.zip">
-            Download
-          </a>
+          <a class="download-btn" href="https://github.com/mpotter2002/DropConvert/releases/latest/download/DropConvert.zip">Download</a>
         </div>
       </div>
 
-      <!-- curl -->
-      <div class="install-option">
-        <div class="install-header">
-          <span class="install-label">curl installer</span>
+      <div class="install-card fade-up delay-5">
+        <div class="install-head">
+          <span class="install-lbl">Curl Installer</span>
         </div>
         <div class="install-body">
           <code id="curl-cmd">curl -fsSL https://website-sigma-seven-48.vercel.app/install.sh | bash</code>
-          <button class="copy-btn" onclick="copy('curl-cmd', this)">Copy</button>
+          <button class="copy-btn" onclick="copyText('curl-cmd', this)">Copy</button>
         </div>
       </div>
 
-      <!-- Homebrew -->
-      <div class="install-option">
-        <div class="install-header">
-          <span class="install-label">Homebrew</span>
-          <span class="install-tag tag-soon">Coming soon</span>
+      <div class="install-card fade-up delay-6">
+        <div class="install-head">
+          <span class="install-lbl">Homebrew</span>
+          <span class="tag tag-soon">Coming soon</span>
         </div>
         <div class="install-body">
           <code id="brew-cmd">brew install --cask dropconvert</code>
-          <button class="copy-btn" onclick="copy('brew-cmd', this)" disabled style="opacity:0.4;cursor:default">Copy</button>
+          <button class="copy-btn" disabled style="opacity:0.38;cursor:default">Copy</button>
         </div>
       </div>
 
     </div>
-
     <p class="requires">Requires macOS Sonoma 14.0 or later &nbsp;·&nbsp; Apple Silicon &amp; Intel</p>
+  </section>
 
-    <!-- FEATURES -->
-    <div class="features">
-      <div class="feature">
-        <div class="feature-title">Lives in the menu bar</div>
-        <div class="feature-desc">No dock icon. Always one click away, never in the way.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-title">Drag &amp; drop</div>
-        <div class="feature-desc">Drag a file toward the icon and the panel springs open.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-title">Runs locally</div>
-        <div class="feature-desc">No internet required. Your files never leave your Mac.</div>
-      </div>
-      <div class="feature">
-        <div class="feature-title">Free &amp; open source</div>
-        <div class="feature-desc">MIT licensed. Fork it, hack it, make it yours.</div>
-      </div>
-    </div>
-
-  </main>
-
+  <!-- FOOTER -->
   <footer>
-    <p>Built by <a href="https://github.com/mpotter2002" target="_blank">mpotter2002</a> &nbsp;·&nbsp;
-    <a href="https://github.com/mpotter2002/DropConvert" target="_blank">View on GitHub</a></p>
+    <p>
+      Built by <a href="https://github.com/mpotter2002" target="_blank">mpotter2002</a>
+      &nbsp;·&nbsp;
+      <a href="https://github.com/mpotter2002/DropConvert" target="_blank">View on GitHub</a>
+    </p>
   </footer>
 
   <script>
-    function copy(id, btn) {
-      const text = document.getElementById(id).textContent;
-      navigator.clipboard.writeText(text).then(() => {
+    // ── Sticky nav shadow
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 8);
+    }, { passive: true });
+
+    // ── Scroll fade-in
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
+
+    // ── Copy to clipboard
+    function copyText(id, btn) {
+      navigator.clipboard.writeText(document.getElementById(id).textContent.trim()).then(() => {
         btn.textContent = 'Copied!';
         btn.classList.add('copied');
         setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1800);
       });
     }
+
+    // ── Live clock in the demo
+    function updateClock() {
+      const now = new Date();
+      let h = now.getHours(), m = now.getMinutes();
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      h = h % 12 || 12;
+      document.getElementById('macTime').textContent =
+        h + ':' + String(m).padStart(2, '0') + ' ' + ampm;
+    }
+    updateClock();
+    setInterval(updateClock, 30000);
+
+    // ── Demo animation
+    const sequences = [
+      { from: 'HEIC', fromColor: '#e05252', file: 'photo.heic', fileType: 'HEIC Image',  output: 'photo.jpg',  outputFmt: 'JPG', fmt1: 'JPG', fmt2: 'PNG', activeBtn: 1 },
+      { from: 'MOV',  fromColor: '#4a90e2', file: 'video.mov',  fileType: 'MOV Video',   output: 'video.mp4',  outputFmt: 'MP4', fmt1: 'MP4', fmt2: 'MOV', activeBtn: 1 },
+      { from: 'PDF',  fromColor: '#e07c3e', file: 'report.pdf', fileType: 'PDF Document', output: 'report.jpg', outputFmt: 'JPG', fmt1: 'JPG', fmt2: 'PNG', activeBtn: 1 },
+    ];
+    let seqIdx = 0;
+
+    const demoFile    = document.getElementById('demoFile');
+    const demoPopup   = document.getElementById('demoPopup');
+    const demoSuccess = document.getElementById('demoSuccess');
+    const appIcon     = document.getElementById('appIcon');
+    const dropzone    = document.getElementById('dropzone');
+    const popupOptions = document.getElementById('popupOptions');
+    const convertBtn  = document.getElementById('convertBtn');
+
+    function setStyle(el, props) { Object.assign(el.style, props); }
+    function tr(el, props, transStr) { el.style.transition = transStr; Object.assign(el.style, props); }
+
+    function runSeq() {
+      const s = sequences[seqIdx];
+      seqIdx = (seqIdx + 1) % sequences.length;
+
+      // Update file card
+      document.getElementById('fileExt').textContent = s.from;
+      document.getElementById('fileExt').style.color = s.fromColor;
+      document.getElementById('fileName').textContent = s.file;
+      // Update options panel
+      document.getElementById('optFileName').textContent = s.file;
+      document.getElementById('optFileType').textContent = s.fileType;
+      document.getElementById('fmtBtn1').textContent = s.fmt1;
+      document.getElementById('fmtBtn2').textContent = s.fmt2;
+      document.getElementById('fmtBtn1').className = 'fmt-btn' + (s.activeBtn === 1 ? ' active' : '');
+      document.getElementById('fmtBtn2').className = 'fmt-btn' + (s.activeBtn === 2 ? ' active' : '');
+      // Update success
+      document.getElementById('successLabel').textContent = 'Converted to ' + s.outputFmt + '!';
+      document.getElementById('successSub').textContent = s.output + ' saved to Desktop';
+
+      // Reset
+      setStyle(demoFile,    { transition: 'none', opacity: '0', transform: 'translateX(-50%) translateY(0)' });
+      setStyle(demoPopup,   { transition: 'none', opacity: '0', transform: 'translateY(-6px) scale(0.96)' });
+      setStyle(demoSuccess, { transition: 'none', opacity: '0' });
+      dropzone.classList.remove('active');
+      dropzone.style.display = '';
+      dropzone.style.transition = '';
+      dropzone.style.opacity = '1';   // fix: always restore opacity so drop zone reappears
+      popupOptions.classList.remove('visible');
+      convertBtn.classList.remove('pressing');
+
+      const t = (ms, fn) => setTimeout(fn, ms);
+
+      // Phase 1 – popup appears (drop zone waiting)
+      t(300, () => {
+        tr(demoPopup, { opacity: '1', transform: 'translateY(0) scale(1)' },
+          'opacity 0.25s ease, transform 0.25s cubic-bezier(0.34,1.56,0.64,1)');
+      });
+
+      // Phase 2 – file appears on desktop
+      t(1000, () => { tr(demoFile, { opacity: '1' }, 'opacity 0.4s ease'); });
+
+      // Phase 3 – file arcs up and right toward the popup
+      t(1800, () => {
+        tr(demoFile, {
+          transform: 'translateX(calc(-50% + 295px)) translateY(-255px)',
+          opacity: '0'
+        }, 'transform 1.2s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease 0.9s');
+      });
+
+      // Phase 4 – drop zone activates as file arrives
+      t(2700, () => {
+        dropzone.classList.add('active');
+        appIcon.classList.add('lit');
+      });
+
+      // Phase 5 – transition to options panel
+      t(3200, () => {
+        appIcon.classList.remove('lit');
+        dropzone.classList.remove('active');
+        setStyle(dropzone, { transition: 'opacity 0.2s ease', opacity: '0' });
+      });
+      t(3450, () => {
+        dropzone.style.display = 'none';
+        popupOptions.classList.add('visible');
+        setStyle(popupOptions, { transition: 'none', opacity: '0' });
+      });
+      t(3500, () => {
+        setStyle(popupOptions, { transition: 'opacity 0.25s ease', opacity: '1' });
+      });
+
+      // Phase 6 – press Convert button
+      t(4400, () => { convertBtn.classList.add('pressing'); });
+      t(4700, () => { convertBtn.classList.remove('pressing'); });
+
+      // Phase 7 – popup fades out, success appears
+      t(4900, () => {
+        tr(demoPopup, { opacity: '0', transform: 'translateY(-4px) scale(0.97)' },
+          'opacity 0.2s ease, transform 0.2s ease');
+      });
+      t(5200, () => {
+        tr(demoSuccess, { opacity: '1' }, 'opacity 0.3s ease');
+      });
+
+      // Phase 8 – fade out & loop
+      t(6800, () => { tr(demoSuccess, { opacity: '0' }, 'opacity 0.4s ease'); });
+      t(7400, () => { runSeq(); });
+    }
+
+    setTimeout(runSeq, 900);
   </script>
 
 </body>

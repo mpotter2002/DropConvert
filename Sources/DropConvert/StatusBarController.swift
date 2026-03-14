@@ -23,6 +23,7 @@ class StatusBarController: NSObject {
         if let button = statusItem.button {
             if let image = NSImage(named: "menubar-icon") ?? loadBundleIcon() {
                 image.size = NSSize(width: 18, height: 18)
+                image.isTemplate = true  // lets macOS auto-invert for light/dark mode
                 button.image = image
             } else {
                 button.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath.doc", accessibilityDescription: "DropConvert")
@@ -125,7 +126,9 @@ class StatusBarController: NSObject {
 
     private func loadBundleIcon() -> NSImage? {
         guard let url = Bundle.module.url(forResource: "menubar-icon", withExtension: "png") else { return nil }
-        return NSImage(contentsOf: url)
+        let image = NSImage(contentsOf: url)
+        image?.isTemplate = true
+        return image
     }
 
     deinit {
