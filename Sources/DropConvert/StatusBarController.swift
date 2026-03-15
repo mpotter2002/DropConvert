@@ -8,7 +8,7 @@ class StatusBarController: NSObject {
     private var dragMonitor: Any?
 
     override init() {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         popover = NSPopover()
         popover.behavior = .transient
         popover.animates = true
@@ -26,9 +26,6 @@ class StatusBarController: NSObject {
             button.target = self
             updateIcon()
         }
-
-        // Observe appearance changes to swap light/dark icon
-        NSApp.addObserver(self, forKeyPath: "effectiveAppearance", options: [.new], context: nil)
 
         // Re-wire dismiss now that self is available
         let cv = ConverterPanelView(onDismiss: { [weak self] in self?.closePopover() })
@@ -121,27 +118,38 @@ class StatusBarController: NSObject {
         return window.convertToScreen(frameInWindow)
     }
 
-    private var isDarkMode: Bool {
-        NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
-    }
-
     private func updateIcon() {
-        let resource = isDarkMode ? "menubar-icon-dark" : "menubar-icon-light"
-        let image = Bundle.module.url(forResource: resource, withExtension: "png")
-            .flatMap { NSImage(contentsOf: $0) }
-            ?? NSImage(systemSymbolName: "arrow.triangle.2.circlepath.doc", accessibilityDescription: "DropConvert")
-        image?.size = NSSize(width: 18, height: 18)
-        statusItem.button?.image = image
-    }
+        let targetHeight: CGFloat = 14
 
-    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
-        if keyPath == "effectiveAppearance" {
-            DispatchQueue.main.async { self.updateIcon() }
+        guard
+            let lightURL = Bundle.module.url(forResource: "menubar-icon-light", withExtension: "png"),
+            let darkURL  = Bundle.module.url(forResource: "menubar-icon-dark",  withExtension: "png"),
+            let lightSrc = NSImage(contentsOf: lightURL),
+            let darkSrc  = NSImage(contentsOf: darkURL)
+        else {
+            statusItem.button?.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath.doc", accessibilityDescription: "DropConvert")
+            return
         }
+
+        // Scale each source image to target height, preserving aspect ratio
+        let lightScale = targetHeight / lightSrc.size.height
+        lightSrc.size = NSSize(width: lightSrc.size.width * lightScale, height: targetHeight)
+        let darkScale  = targetHeight / darkSrc.size.height
+        darkSrc.size  = NSSize(width: darkSrc.size.width * darkScale,  height: targetHeight)
+
+        // Build an adaptive image — macOS calls this draw handler with the correct
+        // appearance for each screen, so it works correctly across multiple displays.
+        let adaptive = NSImage(size: lightSrc.size, flipped: false) { rect in
+            let src = NSAppearance.currentDrawing().bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+                ? lightSrc : darkSrc
+            src.draw(in: rect)
+            return true
+        }
+
+        statusItem.button?.image = adaptive
     }
 
     deinit {
-        NSApp.removeObserver(self, forKeyPath: "effectiveAppearance")
         if let monitor = dragMonitor {
             NSEvent.removeMonitor(monitor)
         }
