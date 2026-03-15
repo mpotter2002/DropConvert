@@ -22,7 +22,8 @@ mkdir -p "$APP_BUNDLE/Contents/Resources"
 cp "$BUILD_DIR/$APP_NAME" "$APP_BUNDLE/Contents/MacOS/$APP_NAME"
 
 # Copy Info.plist (update version)
-sed "s/1.0.0/$VERSION/g; s/<string>1<\/string>/<string>$(echo $VERSION | tr -d '.')/<\/string>/" \
+BUILD_NUM=$(echo "$VERSION" | tr -d '.')
+sed -e "s/1\.0\.0/$VERSION/g" -e "s/<string>1<\/string>/<string>$BUILD_NUM<\/string>/" \
     Info.plist > "$APP_BUNDLE/Contents/Info.plist"
 
 # Copy bundled resources (menubar icon etc.)
