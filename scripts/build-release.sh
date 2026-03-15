@@ -31,6 +31,9 @@ if [ -d "$BUNDLE_RESOURCES" ]; then
     cp -r "$BUNDLE_RESOURCES/"* "$APP_BUNDLE/Contents/Resources/" 2>/dev/null || true
 fi
 
+# Copy app icon
+cp Sources/DropConvert/Resources/AppIcon.icns "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
+
 echo "Created $APP_BUNDLE"
 
 # Zip it
