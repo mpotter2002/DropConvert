@@ -21,17 +21,14 @@ class StatusBarController: NSObject {
         super.init()
 
         if let button = statusItem.button {
-            if let image = NSImage(named: "menubar-icon") ?? loadBundleIcon() {
-                image.size = NSSize(width: 18, height: 18)
-                image.isTemplate = true  // lets macOS auto-invert for light/dark mode
-                button.image = image
-            } else {
-                button.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath.doc", accessibilityDescription: "DropConvert")
-            }
             button.action = #selector(handleClick)
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
             button.target = self
+            updateIcon()
         }
+
+        // Observe appearance changes to swap light/dark icon
+        NSApp.addObserver(self, forKeyPath: "effectiveAppearance", options: [.new], context: nil)
 
         // Re-wire dismiss now that self is available
         let cv = ConverterPanelView(onDismiss: { [weak self] in self?.closePopover() })
@@ -124,14 +121,27 @@ class StatusBarController: NSObject {
         return window.convertToScreen(frameInWindow)
     }
 
-    private func loadBundleIcon() -> NSImage? {
-        guard let url = Bundle.module.url(forResource: "menubar-icon", withExtension: "png") else { return nil }
-        let image = NSImage(contentsOf: url)
-        image?.isTemplate = true
-        return image
+    private var isDarkMode: Bool {
+        NSApp.effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+    }
+
+    private func updateIcon() {
+        let resource = isDarkMode ? "menubar-icon-dark" : "menubar-icon-light"
+        let image = Bundle.module.url(forResource: resource, withExtension: "png")
+            .flatMap { NSImage(contentsOf: $0) }
+            ?? NSImage(systemSymbolName: "arrow.triangle.2.circlepath.doc", accessibilityDescription: "DropConvert")
+        image?.size = NSSize(width: 18, height: 18)
+        statusItem.button?.image = image
+    }
+
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey: Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "effectiveAppearance" {
+            DispatchQueue.main.async { self.updateIcon() }
+        }
     }
 
     deinit {
+        NSApp.removeObserver(self, forKeyPath: "effectiveAppearance")
         if let monitor = dragMonitor {
             NSEvent.removeMonitor(monitor)
         }
