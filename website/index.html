@@ -680,7 +680,9 @@
       .demo-wrap { padding: 0 1rem; margin-top: 1.75rem; }
       .mac-bar { padding: 0 10px; }
       .mac-menus { display: none; }
+      .mac-status { margin-left: auto; }
       .mac-desktop { height: 220px; }
+      .demo-file { left: 28%; bottom: 18%; }
       .demo-popup { right: 10px; width: 148px; padding: 9px; }
       .popup-title { font-size: 11px; }
       .popup-drop-text { font-size: 10px; }
@@ -1067,10 +1069,14 @@
       // Phase 2 – file appears on desktop
       t(1000, () => { tr(demoFile, { opacity: '1' }, 'opacity 0.4s ease'); });
 
-      // Phase 3 – file arcs up and right toward the popup
+      // Phase 3 – file arcs up and right toward the popup (calculated dynamically)
       t(1800, () => {
+        const fileRect  = demoFile.getBoundingClientRect();
+        const popupRect = demoPopup.getBoundingClientRect();
+        const dx = (popupRect.left + popupRect.width  / 2) - (fileRect.left + fileRect.width  / 2);
+        const dy = (popupRect.top  + popupRect.height / 2) - (fileRect.top  + fileRect.height / 2);
         tr(demoFile, {
-          transform: 'translateX(calc(-50% + 295px)) translateY(-255px)',
+          transform: `translateX(calc(-50% + ${dx}px)) translateY(${dy}px)`,
           opacity: '0'
         }, 'transform 1.2s cubic-bezier(0.4,0,0.2,1), opacity 0.3s ease 0.9s');
       });
