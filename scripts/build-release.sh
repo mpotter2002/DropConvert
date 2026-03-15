@@ -2,7 +2,7 @@
 set -e
 
 VERSION=${1:-"1.0.0"}
-ARCH=$(uname -m)  # arm64 or x86_64
+ARCH=${2:-$(uname -m)}  # Accept arch as second arg, default to uname -m
 BUILD_DIR=".build/release"
 APP_NAME="DropConvert"
 APP_BUNDLE="$APP_NAME.app"

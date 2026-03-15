@@ -18,12 +18,12 @@ jobs:
       - name: Build arm64
         run: |
           chmod +x scripts/build-release.sh
-          bash scripts/build-release.sh ${{ steps.version.outputs.VERSION }}
+          bash scripts/build-release.sh ${{ steps.version.outputs.VERSION }} arm64
           mv DropConvert-${{ steps.version.outputs.VERSION }}-arm64.zip DropConvert-arm64.zip
 
       - name: Build x86_64
         run: |
-          bash scripts/build-release.sh ${{ steps.version.outputs.VERSION }}
+          bash scripts/build-release.sh ${{ steps.version.outputs.VERSION }} x86_64
           mv DropConvert-${{ steps.version.outputs.VERSION }}-x86_64.zip DropConvert-x86_64.zip
 
       - name: Create universal zip
