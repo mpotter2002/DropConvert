@@ -349,6 +349,16 @@ struct SettingsView: View {
                 .padding(.bottom, 10)
             }
 
+            Divider()
+
+            Button("Quit DropConvert") {
+                NSApplication.shared.terminate(nil)
+            }
+            .font(.system(size: 13))
+            .foregroundStyle(.red)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
             Text("Version \(currentVersion)")
                 .font(.system(size: 11))
                 .foregroundStyle(.tertiary)
