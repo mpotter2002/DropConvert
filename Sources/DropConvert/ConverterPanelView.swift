@@ -1,5 +1,6 @@
 import SwiftUI
 import UniformTypeIdentifiers
+import ServiceManagement
 
 struct ConverterPanelView: View {
     let onDismiss: () -> Void
@@ -10,6 +11,7 @@ struct ConverterPanelView: View {
     @State private var isTargeted = false
     @State private var isConverting = false
     @State private var conversionResult: ConversionResult?
+    @State private var showingSettings = false
 
     var body: some View {
         ZStack {
@@ -40,6 +42,15 @@ struct ConverterPanelView: View {
             Text("DropConvert")
                 .font(.system(size: 13, weight: .semibold))
             Spacer()
+            Button(action: { showingSettings.toggle() }) {
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 14))
+                    .foregroundStyle(showingSettings ? .primary : .tertiary)
+            }
+            .buttonStyle(.plain)
+            .popover(isPresented: $showingSettings, arrowEdge: .bottom) {
+                SettingsView()
+            }
             Button(action: onDismiss) {
                 Image(systemName: "xmark.circle.fill")
                     .font(.system(size: 15))
@@ -263,6 +274,141 @@ struct FormatChip: View {
         }
         .buttonStyle(.plain)
         .animation(.spring(response: 0.2), value: isSelected)
+    }
+}
+
+private enum UpdateState {
+    case idle, checking, upToDate, available(version: String, downloadURL: URL), failed
+}
+
+struct VersionInfo: Decodable {
+    let version: String
+    let url: String
+}
+
+struct SettingsView: View {
+    @State private var launchAtLogin: Bool = SMAppService.mainApp.status == .enabled
+    @State private var updateState: UpdateState = .idle
+
+    private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+    private let versionURL = URL(string: "https://dropconvert.app/version.json")!
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Settings")
+                .font(.system(size: 13, weight: .semibold))
+                .padding(.horizontal, 16)
+                .padding(.top, 14)
+                .padding(.bottom, 10)
+
+            Divider()
+
+            Toggle("Open at Login", isOn: $launchAtLogin)
+                .font(.system(size: 13))
+                .padding(.horizontal, 16)
+                .padding(.vertical, 12)
+                .onChange(of: launchAtLogin) { _, newValue in
+                    do {
+                        if newValue {
+                            try SMAppService.mainApp.register()
+                        } else {
+                            try SMAppService.mainApp.unregister()
+                        }
+                    } catch {
+                        launchAtLogin = !newValue
+                    }
+                }
+
+            Divider()
+
+            HStack(spacing: 8) {
+                Button("Check for Updates") { checkForUpdates() }
+                    .font(.system(size: 13))
+                    .disabled({ if case .checking = updateState { return true }; return false }())
+
+                Spacer()
+
+                updateBadge
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+
+            if case .available(_, let url) = updateState {
+                Button {
+                    NSWorkspace.shared.open(url)
+                } label: {
+                    Text("Download Update")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 28)
+                        .background(RoundedRectangle(cornerRadius: 7).fill(Color.blue))
+                }
+                .buttonStyle(.plain)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 10)
+            }
+
+            Text("Version \(currentVersion)")
+                .font(.system(size: 11))
+                .foregroundStyle(.tertiary)
+                .padding(.horizontal, 16)
+                .padding(.bottom, 14)
+        }
+        .frame(width: 240)
+    }
+
+    @ViewBuilder
+    private var updateBadge: some View {
+        switch updateState {
+        case .checking:
+            ProgressView().scaleEffect(0.65)
+        case .upToDate:
+            Label("Up to date", systemImage: "checkmark.circle.fill")
+                .font(.system(size: 11))
+                .foregroundStyle(.green)
+        case .available(let version, _):
+            Text("v\(version) available")
+                .font(.system(size: 11))
+                .foregroundStyle(.blue)
+        case .failed:
+            Text("Check failed")
+                .font(.system(size: 11))
+                .foregroundStyle(.secondary)
+        case .idle:
+            EmptyView()
+        }
+    }
+
+    private func checkForUpdates() {
+        updateState = .checking
+        Task {
+            do {
+                let (data, _) = try await URLSession.shared.data(from: versionURL)
+                let info = try JSONDecoder().decode(VersionInfo.self, from: data)
+                await MainActor.run {
+                    if isNewer(info.version, than: currentVersion), let url = URL(string: info.url) {
+                        updateState = .available(version: info.version, downloadURL: url)
+                    } else {
+                        updateState = .upToDate
+                    }
+                }
+            } catch {
+                await MainActor.run { updateState = .failed }
+            }
+        }
+    }
+
+    private func isNewer(_ remote: String, than local: String) -> Bool {
+        let r = remote.split(separator: ".").compactMap { Int($0) }
+        let l = local.split(separator: ".").compactMap { Int($0) }
+        for i in 0..<max(r.count, l.count) {
+            let rv = i < r.count ? r[i] : 0
+            let lv = i < l.count ? l[i] : 0
+            if rv > lv { return true }
+            if rv < lv { return false }
+        }
+        return false
     }
 }
 
