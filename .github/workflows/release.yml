@@ -18,6 +18,21 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
 
+      - name: Import certificate
+        env:
+          CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE }}
+          CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
+          CERTIFICATE_PATH=$RUNNER_TEMP/certificate.p12
+          echo -n "$CERTIFICATE_BASE64" | base64 --decode -o "$CERTIFICATE_PATH"
+          security create-keychain -p "temp-password" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "temp-password" "$KEYCHAIN_PATH"
+          security import "$CERTIFICATE_PATH" -k "$KEYCHAIN_PATH" -P "$CERTIFICATE_PASSWORD" -T /usr/bin/codesign
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "temp-password" "$KEYCHAIN_PATH"
+
       - name: Build arm64
         run: |
           chmod +x scripts/build-release.sh
@@ -29,9 +44,8 @@ jobs:
           bash scripts/build-release.sh ${{ steps.version.outputs.VERSION }} x86_64
           mv DropConvert-${{ steps.version.outputs.VERSION }}-x86_64.zip DropConvert-x86_64.zip
 
-      - name: Create universal zip
+      - name: Create universal binary
         run: |
-          # Build both arches and combine with lipo
           swift build -c release --arch arm64
           swift build -c release --arch x86_64
           mkdir -p DropConvert.app/Contents/MacOS
@@ -44,7 +58,33 @@ jobs:
             Info.plist > DropConvert.app/Contents/Info.plist
           cp -r .build/arm64-apple-macosx/release/DropConvert.bundle/* \
             DropConvert.app/Contents/Resources/ 2>/dev/null || true
-          zip -r DropConvert.zip DropConvert.app
+
+      - name: Sign app
+        run: |
+          codesign --deep --force --options runtime \
+            --entitlements entitlements.plist \
+            --sign "Developer ID Application: ${{ secrets.APPLE_TEAM_NAME }} (${{ secrets.APPLE_TEAM_ID }})" \
+            DropConvert.app
+          codesign --verify --verbose DropConvert.app
+
+      - name: Notarize app
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          ditto -c -k --keepParent DropConvert.app DropConvert-notarize.zip
+          xcrun notarytool submit DropConvert-notarize.zip \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_ID_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+          xcrun stapler staple DropConvert.app
+          rm DropConvert-notarize.zip
+
+      - name: Package signed app
+        run: |
+          ditto -c -k --keepParent DropConvert.app DropConvert.zip
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -54,7 +94,7 @@ jobs:
             ## DropConvert ${{ github.ref_name }}
 
             ### Install
-            **Direct download:** grab `DropConvert.zip` below (universal binary).
+            **Direct download:** grab `DropConvert.zip` below (universal binary, signed & notarized).
 
             **curl:**
             ```bash
