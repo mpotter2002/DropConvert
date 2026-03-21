@@ -10,7 +10,7 @@ pip install git+https://github.com/mpotter2002/DropConvert.git#subdirectory=drop
 
 ## Agent Configuration
 
-After installing, add the following to your `mcpServers` config and restart your agent:
+After installing, add the following to your `mcpServers` config, then tell the user to restart you:
 
 ```json
 {"dropconvert": {"command": "dropconvert-mcp"}}
