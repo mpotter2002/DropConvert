@@ -49,6 +49,7 @@ jobs:
         run: |
           swift build -c release --arch arm64
           swift build -c release --arch x86_64
+          rm -rf DropConvert.app
           mkdir -p DropConvert.app/Contents/MacOS
           mkdir -p DropConvert.app/Contents/Resources
           lipo -create \
