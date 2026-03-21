@@ -636,6 +636,97 @@
       margin-top: 1.25rem;
     }
 
+    /* ─── AGENT SKILL ─── */
+    .skill-section {
+      max-width: 1060px;
+      margin: 5.5rem auto 0;
+      padding: 0 2rem;
+    }
+    .skill-intro {
+      text-align: center;
+      max-width: 560px;
+      margin: 0 auto 2rem;
+    }
+    .skill-intro h2 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.55rem;
+    }
+    .skill-intro p {
+      font-size: 0.95rem;
+      color: #666;
+      line-height: 1.6;
+    }
+    .skill-prompt-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .skill-prompt-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.4rem;
+      background: #f0f0f0;
+      border-bottom: 1px solid var(--border);
+    }
+    .skill-prompt-lbl {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #555;
+    }
+    .skill-prompt-body {
+      padding: 1.2rem 1.4rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+    }
+    .skill-prompt-body pre {
+      flex: 1;
+      font-family: "SF Mono", "Fira Code", "Fira Mono", monospace;
+      font-size: 0.88rem;
+      color: #1a1a1a;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      line-height: 1.55;
+    }
+    .skill-steps {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1.4rem;
+      flex-wrap: wrap;
+    }
+    .skill-step {
+      flex: 1;
+      min-width: 180px;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+    .skill-step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #0a0a0a;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .skill-step-text {
+      font-size: 0.88rem;
+      color: #555;
+      line-height: 1.5;
+    }
+
     /* ─── FOOTER ─── */
     footer {
       text-align: center;
@@ -963,6 +1054,42 @@
 
     </div>
     <p class="requires">Requires macOS Sonoma 14.0 or later &nbsp;·&nbsp; Apple Silicon &amp; Intel</p>
+  </section>
+
+  <!-- AGENT SKILL -->
+  <section class="skill-section">
+    <div class="skill-intro fade-up">
+      <p class="section-eyebrow" style="text-align:center;margin-bottom:0.75rem;">For AI Agents</p>
+      <h2>Give your agent the ability to convert files</h2>
+      <p>Install the DropConvert skill and your agent can convert files locally — no uploads, no third-party services, fully private.</p>
+    </div>
+
+    <div class="skill-prompt-card fade-up">
+      <div class="skill-prompt-head">
+        <span class="skill-prompt-lbl">Paste this to your agent</span>
+        <button class="copy-btn" onclick="copyText('agent-prompt', this)">Copy</button>
+      </div>
+      <div class="skill-prompt-body">
+        <pre id="agent-prompt">Install this pip package: pip install git+https://github.com/mpotter2002/DropConvert.git#subdirectory=dropconvert-mcp, then let me know so I can restart you.</pre>
+      </div>
+    </div>
+
+    <div class="skill-steps fade-up">
+      <div class="skill-step">
+        <div class="skill-step-num">1</div>
+        <div class="skill-step-text">Copy the prompt above and paste it to your agent</div>
+      </div>
+      <div class="skill-step">
+        <div class="skill-step-num">2</div>
+        <div class="skill-step-text">Your agent installs the skill and updates its config</div>
+      </div>
+      <div class="skill-step">
+        <div class="skill-step-num">3</div>
+        <div class="skill-step-text">Restart your agent — then just ask it to convert any file</div>
+      </div>
+    </div>
+
+    <p class="requires" style="margin-top:1.5rem;">Works on Mac, Linux, and Windows &nbsp;·&nbsp; Requires Python 3.10+</p>
   </section>
 
   <!-- FOOTER -->

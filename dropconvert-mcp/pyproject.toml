@@ -1,0 +1,22 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "dropconvert-mcp"
+version = "1.0.0"
+description = "Convert files locally using your AI agent — DropConvert skill"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0.0",
+    "pillow>=10.0.0",
+    "pillow-heif>=0.13.0",
+    "pdf2image>=1.16.0",
+]
+
+[project.scripts]
+dropconvert-mcp = "dropconvert_mcp.server:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/dropconvert_mcp"]
