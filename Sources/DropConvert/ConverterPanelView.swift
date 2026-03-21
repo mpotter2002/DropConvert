@@ -1,6 +1,7 @@
 import SwiftUI
 import UniformTypeIdentifiers
 import ServiceManagement
+import DropConvertCore
 
 struct ConverterPanelView: View {
     let onDismiss: () -> Void
