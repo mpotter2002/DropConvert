@@ -61,10 +61,15 @@ jobs:
             DropConvert.app/Contents/Resources/ 2>/dev/null || true
 
       - name: Sign app
+        env:
+          APPLE_TEAM_NAME: ${{ secrets.APPLE_TEAM_NAME }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
+          TEAM_NAME=$(echo "$APPLE_TEAM_NAME" | tr -d '\n\r')
+          TEAM_ID=$(echo "$APPLE_TEAM_ID" | tr -d '\n\r')
           codesign --deep --force --options runtime \
             --entitlements entitlements.plist \
-            --sign "Developer ID Application: ${{ secrets.APPLE_TEAM_NAME }} (${{ secrets.APPLE_TEAM_ID }})" \
+            --sign "Developer ID Application: ${TEAM_NAME} (${TEAM_ID})" \
             DropConvert.app
           codesign --verify --verbose DropConvert.app
 
