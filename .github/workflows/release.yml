@@ -58,10 +58,11 @@ jobs:
             -output DropConvert.app/Contents/MacOS/DropConvert
           sed "s/1.0.0/${{ steps.version.outputs.VERSION }}/g" \
             Info.plist > DropConvert.app/Contents/Info.plist
-          # Copy the SPM resource bundle to the app bundle root so Bundle.module finds it
+          # Copy the SPM resource bundle into Contents/Resources so Bundle.module finds it
+          # and codesign --deep can seal it (files at bundle root cause "unsealed contents" error)
           RESOURCE_BUNDLE=".build/arm64-apple-macosx/release/DropConvert_DropConvert.bundle"
           if [ -d "$RESOURCE_BUNDLE" ]; then
-            cp -r "$RESOURCE_BUNDLE" "DropConvert.app/DropConvert_DropConvert.bundle"
+            cp -r "$RESOURCE_BUNDLE" "DropConvert.app/Contents/Resources/DropConvert_DropConvert.bundle"
           else
             echo "Warning: resource bundle not found at $RESOURCE_BUNDLE"
           fi
