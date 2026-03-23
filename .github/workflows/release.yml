@@ -58,8 +58,16 @@ jobs:
             -output DropConvert.app/Contents/MacOS/DropConvert
           sed "s/1.0.0/${{ steps.version.outputs.VERSION }}/g" \
             Info.plist > DropConvert.app/Contents/Info.plist
-          cp -r .build/arm64-apple-macosx/release/DropConvert.bundle/* \
-            DropConvert.app/Contents/Resources/ 2>/dev/null || true
+          # Copy the SPM resource bundle into Contents/Resources so Bundle.module finds it
+          # and codesign --deep can seal it (files at bundle root cause "unsealed contents" error)
+          RESOURCE_BUNDLE=".build/arm64-apple-macosx/release/DropConvert_DropConvert.bundle"
+          if [ -d "$RESOURCE_BUNDLE" ]; then
+            cp -r "$RESOURCE_BUNDLE" "DropConvert.app/Contents/Resources/DropConvert_DropConvert.bundle"
+          else
+            echo "Warning: resource bundle not found at $RESOURCE_BUNDLE"
+          fi
+          # Copy app icon into Contents/Resources so Finder shows it
+          cp Sources/DropConvert/Resources/AppIcon.icns DropConvert.app/Contents/Resources/AppIcon.icns
 
       - name: Sign app
         env:
@@ -93,6 +101,27 @@ jobs:
         run: |
           ditto -c -k --keepParent DropConvert.app DropConvert.zip
 
+      - name: Create DMG
+        run: |
+          mkdir -p dmg_contents
+          cp -r DropConvert.app dmg_contents/
+          ln -s /Applications dmg_contents/Applications
+          hdiutil create -volname "DropConvert" -srcfolder dmg_contents -ov -format UDZO DropConvert.dmg
+          rm -rf dmg_contents
+
+      - name: Notarize DMG
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_ID_PASSWORD: ${{ secrets.APPLE_ID_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          xcrun notarytool submit DropConvert.dmg \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_ID_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait
+          xcrun stapler staple DropConvert.dmg
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -101,7 +130,7 @@ jobs:
             ## DropConvert ${{ github.ref_name }}
 
             ### Install
-            **Direct download:** grab `DropConvert.zip` below (universal binary, signed & notarized).
+            **Direct download:** grab `DropConvert.dmg` below — open it and drag DropConvert to Applications (universal binary, signed & notarized).
 
             **curl:**
             ```bash
@@ -114,6 +143,7 @@ jobs:
             ### Requirements
             macOS 14 (Sonoma) or later
           files: |
+            DropConvert.dmg
             DropConvert.zip
             DropConvert-arm64.zip
             DropConvert-x86_64.zip
