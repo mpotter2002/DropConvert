@@ -17,6 +17,7 @@ dependencies = [
 
 [project.scripts]
 dropconvert-mcp = "dropconvert_mcp.server:main"
+dropconvert-mcp-setup = "dropconvert_mcp.setup:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/dropconvert_mcp"]
