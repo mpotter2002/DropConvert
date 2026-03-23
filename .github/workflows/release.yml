@@ -125,6 +125,22 @@ jobs:
             --wait
           xcrun stapler staple DropConvert.dmg
 
+      - name: Update Homebrew cask
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          SHA=$(shasum -a 256 DropConvert.dmg | awk '{print $1}')
+          VERSION=${{ steps.version.outputs.VERSION }}
+          git clone https://x-access-token:${GH_TOKEN}@github.com/mpotter2002/homebrew-tap.git /tmp/homebrew-tap
+          sed -i '' "s/version \".*\"/version \"${VERSION}\"/" /tmp/homebrew-tap/Casks/dropconvert.rb
+          sed -i '' "s/sha256 \".*\"/sha256 \"${SHA}\"/" /tmp/homebrew-tap/Casks/dropconvert.rb
+          cd /tmp/homebrew-tap
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git add Casks/dropconvert.rb
+          git commit -m "Update DropConvert to v${VERSION}"
+          git push
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
