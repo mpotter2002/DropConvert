@@ -40,8 +40,10 @@ else
     echo "Warning: resource bundle not found at $BUNDLE_RESOURCES"
 fi
 
-# Copy app icon
+# Copy app icon and menubar icons directly so Bundle.main can find them as a fallback
 cp Sources/DropConvert/Resources/AppIcon.icns "$APP_BUNDLE/Contents/Resources/AppIcon.icns"
+cp Sources/DropConvert/Resources/menubar-icon-light.png "$APP_BUNDLE/Contents/Resources/menubar-icon-light.png"
+cp Sources/DropConvert/Resources/menubar-icon-dark.png "$APP_BUNDLE/Contents/Resources/menubar-icon-dark.png"
 
 echo "Created $APP_BUNDLE"
 

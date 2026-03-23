@@ -118,12 +118,25 @@ class StatusBarController: NSObject {
         return window.convertToScreen(frameInWindow)
     }
 
+    /// Safe bundle lookup that never calls fatalError.
+    /// Searches the same locations SPM's Bundle.module does, then falls back to Bundle.main.
+    private func iconBundle() -> Bundle {
+        let name = "DropConvert_DropConvert"
+        let bases = [Bundle.main.resourceURL, Bundle.main.bundleURL]
+        for base in bases {
+            if let url = base?.appendingPathComponent("\(name).bundle"),
+               let b = Bundle(url: url) { return b }
+        }
+        return Bundle.main
+    }
+
     private func updateIcon() {
         let targetHeight: CGFloat = 14
+        let bundle = iconBundle()
 
         guard
-            let lightURL = Bundle.module.url(forResource: "menubar-icon-light", withExtension: "png"),
-            let darkURL  = Bundle.module.url(forResource: "menubar-icon-dark",  withExtension: "png"),
+            let lightURL = bundle.url(forResource: "menubar-icon-light", withExtension: "png"),
+            let darkURL  = bundle.url(forResource: "menubar-icon-dark",  withExtension: "png"),
             let lightSrc = NSImage(contentsOf: lightURL),
             let darkSrc  = NSImage(contentsOf: darkURL)
         else {

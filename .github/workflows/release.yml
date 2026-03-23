@@ -66,8 +66,11 @@ jobs:
           else
             echo "Warning: resource bundle not found at $RESOURCE_BUNDLE"
           fi
-          # Copy app icon into Contents/Resources so Finder shows it
+          # Copy app icon and menubar icons directly into Contents/Resources
+          # so Bundle.main finds them as a fallback even if the nested bundle lookup fails
           cp Sources/DropConvert/Resources/AppIcon.icns DropConvert.app/Contents/Resources/AppIcon.icns
+          cp Sources/DropConvert/Resources/menubar-icon-light.png DropConvert.app/Contents/Resources/menubar-icon-light.png
+          cp Sources/DropConvert/Resources/menubar-icon-dark.png DropConvert.app/Contents/Resources/menubar-icon-dark.png
 
       - name: Sign app
         env:
