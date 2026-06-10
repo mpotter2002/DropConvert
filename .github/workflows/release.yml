@@ -126,6 +126,7 @@ jobs:
           xcrun stapler staple DropConvert.dmg
 
       - name: Update Homebrew cask
+        continue-on-error: true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

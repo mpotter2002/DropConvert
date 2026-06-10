@@ -6,9 +6,17 @@ Drag a file toward the menu bar icon — the panel springs open. Drop it in, pic
 
 ## Supported conversions
 
-- HEIC → JPG / PNG
-- MOV → MP4
-- PDF → JPG / PNG
+### Images
+- HEIC / JPG / PNG / TIFF / BMP → JPG, PNG, WebP, GIF
+- WebP → JPG, PNG, GIF
+- GIF → JPG, PNG, WebP
+- SVG → JPG, PNG, WebP
+
+### Video
+- MOV / MP4 / AVI / MKV / WebM → MP4, MOV
+
+### Documents
+- PDF → JPG, PNG, WebP
 
 ## How to run
 

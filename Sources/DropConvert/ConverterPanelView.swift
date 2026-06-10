@@ -88,7 +88,7 @@ struct ConverterPanelView: View {
                     VStack(spacing: 4) {
                         Text("Drop a file to convert")
                             .font(.system(size: 13, weight: .medium))
-                        Text("HEIC · MOV · PDF")
+                        Text("HEIC · PNG · WebP · TIFF · GIF · MOV · AVI · PDF · SVG")
                             .font(.system(size: 11))
                             .foregroundStyle(.tertiary)
                     }

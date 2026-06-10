@@ -6,3 +6,9 @@ xcuserdata/
 DerivedData/
 .swiftpm/
 *.resolved
+DropConvert.app/
+*.zip
+.claude/
+/FileConvertIcon.png
+/FileConvertLogo.png
+/FileIcon2.png

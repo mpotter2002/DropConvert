@@ -33,7 +33,7 @@ func handleRequest(_ req: [String: Any]) async {
             "result": [
                 "protocolVersion": "2024-11-05",
                 "capabilities": ["tools": [:]],
-                "serverInfo": ["name": "dropconvert", "version": "1.0.0"]
+                "serverInfo": ["name": "dropconvert", "version": "1.0.6"]
             ]
         ])
 
@@ -44,7 +44,7 @@ func handleRequest(_ req: [String: Any]) async {
             "result": [
                 "tools": [[
                     "name": "convert_file",
-                    "description": "Convert a file to a different format. Supports: HEIC/JPG/PNG → JPG or PNG, MOV → MP4, PDF → JPG or PNG. Output is saved next to the input file.",
+                    "description": "Convert a file to a different format. Supports: HEIC/JPG/PNG/WebP/TIFF/BMP/GIF → JPG/PNG/WebP/GIF, MOV/MP4/AVI/MKV/WebM → MP4/MOV, PDF/SVG → JPG/PNG/WebP. Output is saved next to the input file.",
                     "inputSchema": [
                         "type": "object",
                         "properties": [
@@ -54,8 +54,8 @@ func handleRequest(_ req: [String: Any]) async {
                             ],
                             "output_format": [
                                 "type": "string",
-                                "enum": ["jpg", "png", "mp4"],
-                                "description": "Target format"
+                                "enum": ["jpg", "png", "webp", "gif", "mp4", "mov"],
+                                "description": "Target format (jpg, png, webp, gif, mp4, mov)"
                             ]
                         ],
                         "required": ["input_path", "output_format"]
@@ -78,7 +78,7 @@ func handleRequest(_ req: [String: Any]) async {
               let formatStr = args["output_format"] as? String,
               let format = OutputFormat(rawValue: formatStr)
         else {
-            sendError(id: id, code: -32602, message: "Invalid arguments: requires input_path (string) and output_format (jpg/png/mp4)")
+            sendError(id: id, code: -32602, message: "Invalid arguments: requires input_path (string) and output_format (jpg/png/webp/gif/mp4/mov)")
             return
         }
 
