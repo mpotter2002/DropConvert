@@ -88,9 +88,12 @@ struct ConverterPanelView: View {
                     VStack(spacing: 4) {
                         Text("Drop a file to convert")
                             .font(.system(size: 13, weight: .medium))
-                        Text("HEIC · PNG · WebP · TIFF · GIF · MOV · AVI · PDF · SVG")
+                        Text("HEIC · PNG · WebP · TIFF · BMP · GIF\nMOV · MP4 · AVI · MKV · WebM · PDF · SVG")
                             .font(.system(size: 11))
                             .foregroundStyle(.tertiary)
+                            .multilineTextAlignment(.center)
+                            .lineSpacing(2)
+                            .padding(.horizontal, 12)
                     }
                 }
                 .padding(.vertical, 28)
@@ -290,6 +293,7 @@ struct VersionInfo: Decodable {
 struct SettingsView: View {
     @State private var launchAtLogin: Bool = SMAppService.mainApp.status == .enabled
     @State private var updateState: UpdateState = .idle
+    @StateObject private var updater = Updater()
 
     private let currentVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
     private let versionURL = URL(string: "https://dropconvert.app/version.json")!
@@ -335,19 +339,9 @@ struct SettingsView: View {
             .padding(.vertical, 12)
 
             if case .available(_, let url) = updateState {
-                Button {
-                    NSWorkspace.shared.open(url)
-                } label: {
-                    Text("Download Update")
-                        .font(.system(size: 12, weight: .medium))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 28)
-                        .background(RoundedRectangle(cornerRadius: 7).fill(Color.blue))
-                }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 16)
-                .padding(.bottom, 10)
+                updateActionView(url: url)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 10)
             }
 
             Divider()
@@ -388,6 +382,63 @@ struct SettingsView: View {
                 .foregroundStyle(.secondary)
         case .idle:
             EmptyView()
+        }
+    }
+
+    @ViewBuilder
+    private func updateActionView(url: URL) -> some View {
+        switch updater.phase {
+        case .idle, .failed:
+            VStack(alignment: .leading, spacing: 6) {
+                Button {
+                    updater.installUpdate(from: url)
+                } label: {
+                    Text("Install & Relaunch")
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 28)
+                        .background(RoundedRectangle(cornerRadius: 7).fill(Color.blue))
+                }
+                .buttonStyle(.plain)
+                if case .failed(let msg) = updater.phase {
+                    Text(msg)
+                        .font(.system(size: 10))
+                        .foregroundStyle(.red)
+                        .lineLimit(2)
+                }
+            }
+        case .downloading(let p):
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Downloading…")
+                        .font(.system(size: 11))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text("\(Int(p * 100))%")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(.secondary)
+                        .monospacedDigit()
+                }
+                ProgressView(value: p)
+                    .progressViewStyle(.linear)
+            }
+        case .installing:
+            HStack(spacing: 8) {
+                ProgressView().scaleEffect(0.65)
+                Text("Installing update…")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        case .relaunching:
+            HStack(spacing: 8) {
+                ProgressView().scaleEffect(0.65)
+                Text("Relaunching…")
+                    .font(.system(size: 11))
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 
