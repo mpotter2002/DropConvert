@@ -6,6 +6,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     func applicationDidFinishLaunching(_ notification: Notification) {
         promptMoveToApplicationsIfNeeded()
         statusBarController = StatusBarController()
+        UpdateChecker.shared.startChecking()
     }
 
     private func promptMoveToApplicationsIfNeeded() {

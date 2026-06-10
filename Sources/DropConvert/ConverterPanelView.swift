@@ -13,6 +13,7 @@ struct ConverterPanelView: View {
     @State private var isConverting = false
     @State private var conversionResult: ConversionResult?
     @State private var showingSettings = false
+    @State private var availableUpdate: (version: String, url: URL)?
 
     var body: some View {
         ZStack {
@@ -23,6 +24,11 @@ struct ConverterPanelView: View {
                 header
                 Divider().opacity(0.3)
 
+                if let update = availableUpdate {
+                    updateBanner(version: update.version)
+                    Divider().opacity(0.3)
+                }
+
                 if let file = droppedFile, let type = detectedType {
                     conversionView(file: file, type: type)
                 } else {
@@ -31,6 +37,49 @@ struct ConverterPanelView: View {
             }
         }
         .frame(width: 320)
+        .onAppear {
+            // Surface any pre-found update right when the panel opens
+            if availableUpdate == nil,
+               let v = UpdateChecker.shared.availableVersion,
+               let u = UpdateChecker.shared.availableDownloadURL {
+                availableUpdate = (v, u)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UpdateChecker.updateAvailableNotification)) { note in
+            guard let v = note.userInfo?["version"] as? String,
+                  let url = note.userInfo?["downloadURL"] as? URL else { return }
+            availableUpdate = (v, url)
+        }
+    }
+
+    // MARK: - Update banner
+
+    private func updateBanner(version: String) -> some View {
+        Button { showingSettings = true } label: {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.down.circle.fill")
+                    .font(.system(size: 13))
+                    .foregroundStyle(.white)
+                Text("Update available — v\(version)")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.white)
+                Spacer()
+                Text("Install")
+                    .font(.system(size: 11, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(
+                        RoundedRectangle(cornerRadius: 5)
+                            .fill(.white.opacity(0.22))
+                    )
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity)
+            .background(Color.blue.gradient)
+        }
+        .buttonStyle(.plain)
     }
 
     // MARK: - Header
@@ -361,6 +410,19 @@ struct SettingsView: View {
                 .padding(.bottom, 14)
         }
         .frame(width: 240)
+        .onAppear {
+            // If the background checker already found an update, surface it immediately
+            if case .idle = updateState,
+               let v = UpdateChecker.shared.availableVersion,
+               let url = UpdateChecker.shared.availableDownloadURL {
+                updateState = .available(version: v, downloadURL: url)
+            }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UpdateChecker.updateAvailableNotification)) { note in
+            guard let v = note.userInfo?["version"] as? String,
+                  let url = note.userInfo?["downloadURL"] as? URL else { return }
+            updateState = .available(version: v, downloadURL: url)
+        }
     }
 
     @ViewBuilder

@@ -32,6 +32,7 @@ class StatusBarController: NSObject {
         popover.contentViewController = NSHostingController(rootView: cv)
 
         startDragMonitoring()
+        startUpdateObserver()
     }
 
     @objc private func handleClick() {
@@ -160,6 +161,66 @@ class StatusBarController: NSObject {
         }
 
         statusItem.button?.image = adaptive
+    }
+
+    // MARK: - Update badge
+
+    private func startUpdateObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleUpdateAvailable(_:)),
+            name: UpdateChecker.updateAvailableNotification,
+            object: nil
+        )
+        // If the checker already ran before we registered, catch up now
+        DispatchQueue.main.async { [weak self] in
+            if UpdateChecker.shared.availableVersion != nil {
+                self?.showUpdateBadge()
+            }
+        }
+    }
+
+    @objc private func handleUpdateAvailable(_ note: Notification) {
+        showUpdateBadge()
+    }
+
+    private func showUpdateBadge() {
+        DispatchQueue.main.async { [weak self] in
+            self?.statusItem.button?.appearsDisabled = false
+            // Overlay a small orange dot on the menu bar icon
+            guard let button = self?.statusItem.button else { return }
+            button.image = self?.badgedIcon()
+        }
+    }
+
+    private func badgedIcon() -> NSImage? {
+        let targetHeight: CGFloat = 14
+        let bundle = iconBundle()
+        guard
+            let lightURL = bundle.url(forResource: "menubar-icon-light", withExtension: "png"),
+            let darkURL  = bundle.url(forResource: "menubar-icon-dark",  withExtension: "png"),
+            let lightSrc = NSImage(contentsOf: lightURL),
+            let darkSrc  = NSImage(contentsOf: darkURL)
+        else { return nil }
+
+        let lightScale = targetHeight / lightSrc.size.height
+        lightSrc.size = NSSize(width: lightSrc.size.width * lightScale, height: targetHeight)
+        let darkScale  = targetHeight / darkSrc.size.height
+        darkSrc.size  = NSSize(width: darkSrc.size.width * darkScale,  height: targetHeight)
+
+        let dotDiam: CGFloat = 5
+        let size = NSSize(width: lightSrc.size.width + dotDiam, height: targetHeight)
+        let adaptive = NSImage(size: size, flipped: false) { rect in
+            let src = NSAppearance.currentDrawing().bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+                ? lightSrc : darkSrc
+            src.draw(in: NSRect(origin: .zero, size: lightSrc.size))
+            // Draw orange badge dot at top-right
+            let dotRect = NSRect(x: rect.width - dotDiam, y: rect.height - dotDiam, width: dotDiam, height: dotDiam)
+            NSColor.systemOrange.setFill()
+            NSBezierPath(ovalIn: dotRect).fill()
+            return true
+        }
+        return adaptive
     }
 
     deinit {

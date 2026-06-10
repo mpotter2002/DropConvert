@@ -33,7 +33,7 @@ func handleRequest(_ req: [String: Any]) async {
             "result": [
                 "protocolVersion": "2024-11-05",
                 "capabilities": ["tools": [:]],
-                "serverInfo": ["name": "dropconvert", "version": "1.0.7"]
+                "serverInfo": ["name": "dropconvert", "version": "1.0.8"]
             ]
         ])
 
