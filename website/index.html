@@ -3,8 +3,64 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DropConvert — Convert files from your menu bar</title>
-  <link rel="icon" type="image/png" href="logo.png" />
+  <title>DropConvert — Free macOS Menu Bar File Converter (HEIC, WebP, MP4)</title>
+  <meta name="description" content="Free, open-source macOS menu bar app that converts images, video, PDF and SVG locally. Drag a file, pick a format, done — no uploads, no account, no cloud. macOS 14+." />
+  <link rel="canonical" href="https://dropconvert.app/" />
+  <meta name="theme-color" content="#0a0a0a" />
+
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png" />
+  <link rel="apple-touch-icon" href="logo-180.png" />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://dropconvert.app/" />
+  <meta property="og:title" content="DropConvert — Free macOS Menu Bar File Converter" />
+  <meta property="og:description" content="Drop a file. Pick a format. Done. Converts HEIC, WebP, TIFF, MOV, MP4, PDF &amp; SVG entirely on your Mac — no cloud, no account." />
+  <meta property="og:image" content="https://dropconvert.app/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:site_name" content="DropConvert" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="DropConvert — Free macOS Menu Bar File Converter" />
+  <meta name="twitter:description" content="Drop a file. Pick a format. Done. Local file conversion from your Mac menu bar." />
+  <meta name="twitter:image" content="https://dropconvert.app/og-image.png" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "DropConvert",
+    "applicationCategory": "UtilitiesApplication",
+    "applicationSubCategory": "File Converter",
+    "operatingSystem": "macOS 14.0 or later",
+    "softwareVersion": "1.0.8",
+    "url": "https://dropconvert.app/",
+    "downloadUrl": "https://github.com/mpotter2002/DropConvert/releases/download/v1.0.8/DropConvert.dmg",
+    "installUrl": "https://dropconvert.app/",
+    "softwareHelp": "https://github.com/mpotter2002/DropConvert",
+    "codeRepository": "https://github.com/mpotter2002/DropConvert",
+    "license": "https://github.com/mpotter2002/DropConvert/blob/main/LICENSE",
+    "isAccessibleForFree": true,
+    "description": "Free, open-source macOS menu bar app that converts images, video, PDF and SVG files locally without uploading to the cloud.",
+    "featureList": [
+      "Lives in the macOS menu bar",
+      "Drag and drop conversion",
+      "Runs entirely locally - files never leave your Mac",
+      "Converts HEIC, PNG, WebP, TIFF, BMP, GIF, MOV, MP4, AVI, MKV, WebM, PDF, SVG",
+      "Outputs JPG, PNG, WebP, GIF, MP4, MOV",
+      "No account or subscription required"
+    ],
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "mpotter2002",
+      "url": "https://github.com/mpotter2002"
+    }
+  }
+  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -130,6 +186,22 @@
       color: var(--gray);
       max-width: 490px;
       line-height: 1.68;
+    }
+    .what-is {
+      max-width: 620px;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: var(--gray);
+      text-align: center;
+    }
+    .what-is strong { color: var(--black); font-weight: 600; }
+    .what-is-band {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 2.6rem 1.5rem;
+      margin: 5rem auto 0;
+      display: flex;
+      justify-content: center;
     }
     .badges {
       display: flex;
@@ -493,7 +565,7 @@
     /* ─── FEATURES ─── */
     .features-section {
       max-width: 1060px;
-      margin: 5.5rem auto 0;
+      margin: 4.5rem auto 0;
       padding: 0 2rem;
     }
     .features-grid {
@@ -664,6 +736,11 @@
       transition: opacity 0.55s ease, transform 0.55s ease;
     }
     .fade-up.in { opacity: 1; transform: translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .fade-up { opacity: 1; transform: none; transition: none; }
+    }
     .delay-1 { transition-delay: 0.08s; }
     .delay-2 { transition-delay: 0.16s; }
     .delay-3 { transition-delay: 0.24s; }
@@ -704,6 +781,8 @@
       .popup-convert-btn { font-size: 11px; padding: 7px 0; }
 
       .features-section { padding: 0 1.25rem; margin-top: 3.5rem; }
+      .what-is-band { margin-top: 3.25rem; padding: 2rem 1.25rem; }
+      .what-is { font-size: 0.9rem; }
       .features-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem 1.25rem; }
       .feat-icon { width: 54px; height: 54px; border-radius: 13px; }
       .feat-icon svg { width: 24px; height: 24px; }
@@ -743,13 +822,16 @@
       .download-section { padding: 0 3rem; }
     }
   </style>
+  <noscript>
+    <style>.fade-up { opacity: 1; transform: none; }</style>
+  </noscript>
 </head>
 <body>
 
   <!-- NAV -->
   <nav id="nav">
     <a class="nav-logo" href="#">
-      <img src="logo.png" alt="DropConvert" />
+      <img src="logo-256.webp" alt="" width="32" height="32" />
       <span class="nav-logo-name">DropConvert</span>
       <span class="nav-version">v1.0.8</span>
     </a>
@@ -757,7 +839,7 @@
       <a class="btn-dl" href="https://github.com/mpotter2002/DropConvert/releases/download/v1.0.8/DropConvert.dmg">
         Download v1.0.8
       </a>
-      <a class="btn-gh" href="https://github.com/mpotter2002/DropConvert" target="_blank">
+      <a class="btn-gh" href="https://github.com/mpotter2002/DropConvert" target="_blank" rel="noopener noreferrer">
         GitHub →
       </a>
     </div>
@@ -766,7 +848,7 @@
   <!-- HERO -->
   <section class="hero">
     <div class="hero-icon fade-up">
-      <img src="logo.png" alt="DropConvert icon" />
+      <img src="logo-256.webp" alt="DropConvert app icon: a white arrow dropping into a tray on a black rounded square" width="120" height="120" fetchpriority="high" />
     </div>
 
     <h1 class="fade-up delay-1">Convert files<br>from your menu bar.</h1>
@@ -807,7 +889,7 @@
         </div>
         <div class="mac-status">
           <div class="mac-app-icon" id="appIcon">
-            <img src="menubar-icon.png" alt="" />
+            <img src="menubar-24.webp" alt="" width="24" height="16" />
           </div>
           <!-- Wifi -->
           <div class="mac-status-icon">
@@ -878,6 +960,13 @@
     </div>
   </div>
 
+  <!-- WHAT IS -->
+  <div class="what-is-band fade-up">
+    <p class="what-is">
+      DropConvert is a <strong>free, open-source file converter for macOS</strong> that lives in your menu bar. Drag any image, video, PDF, or SVG onto the icon, choose an output format, and the converted file saves straight to your Desktop. Every conversion runs locally on your Mac &mdash; nothing is uploaded, and no account is required.
+    </p>
+  </div>
+
   <!-- FEATURES -->
   <section class="features-section">
     <div class="features-grid">
@@ -886,7 +975,7 @@
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="3.5" rx="1"/><rect x="2" y="6.5" width="20" height="14.5" rx="1"/></svg>
         </div>
-        <div class="feat-name">Lives in the menu bar</div>
+        <h3 class="feat-name">Lives in the menu bar</h3>
         <div class="feat-desc">No dock icon, no clutter. Always one click away, never in the way.</div>
       </div>
 
@@ -894,7 +983,7 @@
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><path d="M4 4l7.07 17 2.51-7.39L21 11.07z"/></svg>
         </div>
-        <div class="feat-name">Drag &amp; drop</div>
+        <h3 class="feat-name">Drag &amp; drop</h3>
         <div class="feat-desc">Drag a file to the icon and the conversion panel springs open instantly.</div>
       </div>
 
@@ -902,7 +991,7 @@
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
         </div>
-        <div class="feat-name">Runs locally</div>
+        <h3 class="feat-name">Runs locally</h3>
         <div class="feat-desc">No internet required. Your files never leave your Mac.</div>
       </div>
 
@@ -910,7 +999,7 @@
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22"/></svg>
         </div>
-        <div class="feat-name">Free &amp; open source</div>
+        <h3 class="feat-name">Free &amp; open source</h3>
         <div class="feat-desc">Source code on GitHub. Fork it, hack it, make it your own.</div>
       </div>
 
@@ -918,7 +1007,7 @@
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6M9 17h4"/></svg>
         </div>
-        <div class="feat-name">Multiple formats</div>
+        <h3 class="feat-name">Multiple formats</h3>
         <div class="feat-desc">HEIC, WebP, TIFF, BMP, GIF, MOV, AVI, MKV, WebM, PDF, SVG — output to JPG, PNG, WebP, GIF, MP4, MOV.</div>
       </div>
 
@@ -926,7 +1015,7 @@
         <div class="feat-icon">
           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="17" y1="3" x2="21" y2="7"/><line x1="21" y1="3" x2="17" y2="7"/></svg>
         </div>
-        <div class="feat-name">No account needed</div>
+        <h3 class="feat-name">No account needed</h3>
         <div class="feat-desc">Download and go. No sign-up, no subscription, no friction.</div>
       </div>
 
@@ -987,11 +1076,11 @@
   <!-- FOOTER -->
   <footer>
     <p>
-      Built by <a href="https://github.com/mpotter2002" target="_blank">mpotter2002</a>
+      Built by <a href="https://github.com/mpotter2002" target="_blank" rel="noopener noreferrer">mpotter2002</a>
       &nbsp;·&nbsp;
-      <a href="https://github.com/mpotter2002/DropConvert" target="_blank">View on GitHub</a>
+      <a href="https://github.com/mpotter2002/DropConvert" target="_blank" rel="noopener noreferrer">View on GitHub</a>
       &nbsp;·&nbsp;
-      <a href="https://github.com/mpotter2002/DropConvert/blob/main/LICENSE" target="_blank">MIT License</a>
+      <a href="https://github.com/mpotter2002/DropConvert/blob/main/LICENSE" target="_blank" rel="noopener noreferrer">MIT License</a>
     </p>
   </footer>
 

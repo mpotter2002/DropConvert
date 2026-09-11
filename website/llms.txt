@@ -1,0 +1,25 @@
+# DropConvert
+
+> Free, open-source macOS menu bar app for converting image, video, PDF and SVG
+> files entirely on-device. No uploads, no account, no subscription.
+
+DropConvert is a native macOS utility (macOS 14 Sonoma or later) that lives in the
+menu bar. Drag a file onto the icon, pick an output format, and the converted file
+is saved locally. All conversion happens on the Mac; no file is ever sent to a server.
+
+## Supported conversions
+- Input: HEIC, PNG, JPG, WebP, TIFF, BMP, GIF, MOV, MP4, AVI, MKV, WebM, PDF, SVG
+- Output: JPG, PNG, WebP, GIF, MP4, MOV
+
+## Install
+- Direct: https://github.com/mpotter2002/DropConvert/releases/latest
+- Homebrew: brew install --cask mpotter2002/tap/dropconvert
+- Curl: curl -fsSL https://dropconvert.app/install.sh | bash
+- Agent/MCP (macOS, Linux, Windows): pip install git+https://github.com/mpotter2002/DropConvert.git#subdirectory=dropconvert-mcp
+
+## Details
+- License: MIT
+- Price: Free
+- Current version: 1.0.8
+- Source: https://github.com/mpotter2002/DropConvert
+- Signed and notarized universal binary
