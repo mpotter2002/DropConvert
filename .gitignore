@@ -12,3 +12,6 @@ DropConvert.app/
 /FileConvertIcon.png
 /FileConvertLogo.png
 /FileIcon2.png
+
+__pycache__/
+*.py[cod]
